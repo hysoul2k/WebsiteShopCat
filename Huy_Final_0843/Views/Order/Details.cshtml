@@ -1,0 +1,231 @@
+@model Huy_Final_0843.Models.Order
+@{
+    ViewData["Title"] = "Chi Tiết Lộ Trình - #" + Model.Id;
+    
+    // Logic xác định trạng thái cho Timeline
+    int currentStep = 1; // Mặc định là đã đặt hàng
+    if (Model.Status == OrderStatus.Shipping) currentStep = 3; // Coi như đã xác nhận (2) và đang giao (3)
+    if (Model.Status == OrderStatus.Completed) currentStep = 4;
+    if (Model.Status == OrderStatus.Cancelled) currentStep = -1;
+}
+
+<div class="container py-5">
+    <div class="mb-4">
+        <a asp-action="MyOrders" class="btn btn-sm btn-ghost mb-3">
+            <i class="fas fa-chevron-left me-1"></i>Quay lại danh sách
+        </a>
+        <h2 class="text-primary fw-bold" style="font-family: 'Cormorant Garamond', serif; font-size: 32px;">
+            <i class="fas fa-shipping-fast me-3 text-accent"></i>Theo Dõi Lộ Trình Đơn Hàng #@Model.Id
+        </h2>
+        <p class="text-muted" style="font-family: 'DM Sans', sans-serif;">
+            Ngày đặt: @Model.OrderDate.ToString("dd/MM/yyyy HH:mm") | Tổng cộng: <span class="text-primary fw-bold">@Model.TotalPrice.ToString("N0") đ</span>
+        </p>
+    </div>
+
+    <!-- KHU VỰC TIMELINE STEPPER (REAL-TIME) -->
+    <div class="card p-4 p-md-5 mb-5 shadow-earthy border-standard" style="background: var(--color-surface); border-radius: 12px;">
+        <div class="order-tracking-wrapper">
+            <div class="track">
+                <div class="step @(currentStep >= 1 ? "active" : "")" id="step-ordered">
+                    <span class="icon"><i class="fas fa-shopping-cart"></i></span>
+                    <span class="text">Đã Đặt Hàng</span>
+                    <div class="status-date text-muted small">Lúc: @Model.OrderDate.ToString("HH:mm")</div>
+                </div>
+                <div class="step @(currentStep >= 2 ? "active" : "")" id="step-confirmed">
+                    <span class="icon"><i class="fas fa-check"></i></span>
+                    <span class="text">Đã Xác Nhận</span>
+                </div>
+                <div class="step @(currentStep >= 3 ? "active" : "")" id="step-shipping">
+                    <span class="icon"><i class="fas fa-truck"></i></span>
+                    <span class="text">Đang Giao Hàng</span>
+                </div>
+                <div class="step @(currentStep >= 4 ? "active" : "")" id="step-completed">
+                    <span class="icon"><i class="fas fa-home"></i></span>
+                    <span class="text">Hoàn Thành</span>
+                </div>
+            </div>
+        </div>
+
+        @if (Model.Status == OrderStatus.Cancelled)
+        {
+            <div class="alert alert-danger mt-5 border-danger bg-danger bg-opacity-10 shadow-lg text-center p-4">
+                <i class="fas fa-exclamation-triangle fa-2x mb-2 text-danger"></i>
+                <h4 class="text-danger fw-bold">ĐƠN HÀNG ĐÃ BỊ HỦY</h4>
+                <p class="m-0 fs-5 text-on-light">Lý do: <span class="fw-bold text-danger">@(Model.CancellationReason ?? "Hủy bởi hệ thống hoặc theo yêu cầu")</span></p>
+            </div>
+        }
+    </div>
+
+    <div class="row g-4">
+        <!-- Chi tiết món hàng -->
+        <div class="col-md-8">
+            <div class="card p-4 shadow-earthy border-standard h-100" style="background: var(--color-surface); border-radius: 12px;">
+                <h5 class="text-primary mb-4 border-bottom border-standard pb-3" style="font-family: 'DM Sans', sans-serif; font-weight: 700;">
+                    Chi Tiết Món Hàng
+                </h5>
+                <div class="table-responsive">
+                    <table class="table table-borderless align-middle">
+                        <tbody>
+                            @foreach (var item in Model.OrderDetails)
+                            {
+                                <tr style="border-bottom: 1px solid var(--color-border);">
+                                    <td width="80" class="py-3">
+                                        <img src="@item.Product?.ImageUrl" class="rounded border border-standard" style="width: 65px; height: 65px; object-fit: cover;">
+                                    </td>
+                                    <td>
+                                        <div class="fw-bold text-on-light fs-6">@item.Product?.Name</div>
+                                        <div class="text-muted small">Đơn giá: @item.Price.ToString("N0") đ</div>
+                                    </td>
+                                    <td class="text-center text-muted">x @item.Quantity</td>
+                                    <td class="text-end fw-bold text-primary">@((item.Price * item.Quantity).ToString("N0")) đ</td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot class="border-top border-standard">
+                            <tr>
+                                <td colspan="3" class="text-end text-muted py-3">Phí vận chuyển:</td>
+                                <td class="text-end text-primary-light fw-bold py-3">Miễn phí</td>
+                            </tr>
+                            @if (Model.Voucher != null)
+                            {
+                                <tr>
+                                    <td colspan="3" class="text-end text-muted py-1 italic">Giảm giá (@Model.Voucher.Code):</td>
+                                    <td class="text-end text-danger py-1">- @Model.DiscountAmount.ToString("N0") đ</td>
+                                </tr>
+                            }
+                            <tr>
+                                <td colspan="3" class="text-end fs-4 fw-bold py-2 text-on-light" style="font-family: 'Cormorant Garamond', serif;">Tổng cộng:</td>
+                                <td class="text-end fs-4 fw-bold py-2 text-primary" style="font-family: 'Cormorant Garamond', serif;">@Model.TotalPrice.ToString("N0") <span class="fs-6">đ</span></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Thông tin giao hàng & Hỗ trợ -->
+        <div class="col-md-4">
+            <div class="card p-4 mb-4 shadow-earthy border-standard" style="background: var(--color-surface); border-radius: 12px;">
+                <h5 class="text-primary mb-3" style="font-family: 'DM Sans', sans-serif; font-weight: 700;">
+                    <i class="fas fa-map-marker-alt me-2 text-danger"></i>Địa Chỉ Nhận Hàng
+                </h5>
+                <div class="text-muted small fw-bold">Người nhận:</div>
+                <div class="text-on-light mb-3">@User.Identity?.Name</div>
+                <div class="text-muted small fw-bold">Địa chỉ:</div>
+                <div class="text-on-light mb-3">@Model.ShippingAddress</div>
+                <div class="text-muted small fw-bold">Ghi chú:</div>
+                <div class="text-on-light">@(string.IsNullOrEmpty(Model.Notes) ? "Không có ghi chú" : Model.Notes)</div>
+            </div>
+
+            <div class="card p-4 text-center border-0 shadow-earthy" style="background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%); border-radius: 12px; color: var(--color-text-on-dark);">
+                <i class="fas fa-headset fa-3x mb-3 text-accent"></i>
+                <h5 class="fw-bold text-on-dark" style="font-family: 'DM Sans', sans-serif;">Gặp vấn đề?</h5>
+                <p class="opacity-75 small text-on-dark">Nhấn vào đây để liên hệ Admin Meow Garden ngay.</p>
+                <div class="d-flex flex-column gap-2 mt-2">
+                    <a href="https://zalo.me/0908758533" class="btn btn-light fw-bold text-primary w-100"><i class="fab fa-whatsapp me-2"></i>Link Zalo Admin</a>
+                    <a href="https://facebook.com/hysoul2k" class="btn btn-outline-light btn-sm w-100">Fanpage Facebook</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // --- SIGNALR: CẬP NHẬT TRẠNG THÁI REAL-TIME ---
+            const conn = new signalR.HubConnectionBuilder()
+                .withUrl("/orderHub")
+                .build();
+
+            conn.on("ReceiveStatusUpdate", function (orderId, statusText, brand) {
+                if (orderId == "@Model.Id") {
+                    // Hiển thị thông báo động
+                    alert("✨ [" + brand + "]: Đơn hàng #" + orderId + " vừa được chuyển sang: [" + statusText + "]");
+                    
+                    // Reload để cập nhật Timeline sướng mắt nhất
+                    location.reload();
+                }
+            });
+
+            conn.start().catch(err => console.error(err.toString()));
+        });
+    </script>
+
+    <style>
+        /* CSS CHO TIMELINE STEPPER ĐẲNG CẤP */
+        .order-tracking-wrapper {
+            margin-top: 20px;
+        }
+        .track {
+            position: relative;
+            background-color: var(--color-border-dark);
+            height: 5px;
+            display: flex;
+            margin-bottom: 60px;
+            margin-top: 50px;
+        }
+        .track .step {
+            flex-grow: 1;
+            width: 25%;
+            position: relative;
+            text-align: center;
+        }
+        .track .step::before {
+            height: 5px;
+            position: absolute;
+            content: "";
+            background-color: var(--color-primary);
+            width: 0%;
+            top: 0;
+            left: 0;
+            transition: 0.5s;
+        }
+        .track .step.active::before {
+            width: 100%;
+        }
+        .track .icon {
+            display: inline-block;
+            width: 50px;
+            height: 50px;
+            line-height: 50px;
+            position: absolute;
+            top: -22px;
+            left: 50%;
+            margin-left: -25px;
+            background: var(--color-surface);
+            border-radius: 50%;
+            color: var(--color-text-muted);
+            transition: 0.4s;
+            border: 2px solid var(--color-border-dark);
+            z-index: 2;
+        }
+        .track .step.active .icon {
+            background: var(--color-primary);
+            border-color: var(--color-primary);
+            color: var(--color-text-on-dark);
+            box-shadow: 0 0 15px rgba(45, 80, 22, 0.3);
+        }
+        .track .text {
+            display: block;
+            margin-top: 35px;
+            font-weight: 700;
+            color: var(--color-text-muted);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+        }
+        .track .step.active .text {
+            color: var(--color-primary);
+        }
+        .track .status-date {
+            margin-top: 5px;
+        }
+
+        /* Phù hợp cho Mobile */
+        @@media (max-width: 768px) {
+            .track .text { font-size: 0.7rem; }
+            .track .icon { width: 40px; height: 40px; line-height: 40px; top: -17px; margin-left: -20px; }
+        }
+    </style>
+}

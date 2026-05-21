@@ -1,0 +1,27 @@
+@model int
+
+@{
+    ViewData["Title"] = "Trạng Thái Đơn Hàng";
+}
+
+<div class="row justify-content-center mt-5 mb-5">
+    <div class="col-md-6 text-center">
+        <div class="card glass-card p-5 border-success text-center shadow-lg bg-dark">
+            <div class="mx-auto bg-success bg-opacity-25 rounded-circle d-flex align-items-center justify-content-center mb-4" style="width: 100px; height: 100px;">
+                <i class="fas fa-check fa-4x text-success"></i>
+            </div>
+            <h2 class="fw-bold text-white mb-3">Chờ Xác Nhận Giao Dịch</h2>
+            <p class="text-secondary fs-5 mb-4">
+                Cảm ơn bạn đã lựa chọn tin tưởng ShopCat. Đơn hàng <strong class="text-warning">#@Model</strong> của bạn đã được chuyển sang trạng thái <strong>Chờ Admin kiểm tra và xác nhận thanh toán</strong>.
+            </p>
+            <p class="text-white small mb-4">
+                Theo dõi tiến độ đơn hàng tại mục Lịch sử để biết khi nào thú cưng của bạn được giao nhé.
+            </p>
+            <div>
+                <a asp-controller="Home" asp-action="Index" class="btn btn-outline-neon px-5 py-2 fw-bold">
+                    <i class="fas fa-home me-2"></i>TRỞ VỀ TRANG CHỦ
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

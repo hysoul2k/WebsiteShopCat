@@ -1,0 +1,82 @@
+@model IEnumerable<Huy_Final_0843.Models.UserRolesViewModel>
+@{
+    ViewData["Title"] = "Quản lý Tài khoản";
+    Layout = "_AdminLayout";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold m-0"><i class="fas fa-users-cog me-2"></i>Quản Lý Tài Khoản</h3>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success border-0 shadow-sm bg-success bg-opacity-10 text-success mb-4 py-3">
+        <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
+    </div>
+}
+
+<div class="glass-card mt-2">
+    <div class="table-responsive">
+        <table id="userTable" class="table table-dark table-hover mb-0">
+            <thead>
+                <tr class="text-secondary text-uppercase small">
+                    <th>Họ Tên</th>
+                    <th>Email</th>
+                    <th>Quyền Hiện Tại</th>
+                    <th class="text-center">Thao Tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var user in Model)
+                {
+                    <tr>
+                        <td class="align-middle fw-bold">@user.FullName</td>
+                        <td class="align-middle">@user.Email</td>
+                        <td class="align-middle">
+                            @foreach (var role in user.Roles)
+                            {
+                                string badgeClass = role switch
+                                {
+                                    "Admin" => "bg-danger",
+                                    "Staff" => "bg-primary",
+                                    "User" => "bg-success",
+                                    _ => "bg-secondary"
+                                };
+                                <span class="badge @badgeClass text-white me-1">@role</span>
+                            }
+                        </td>
+                        <td class="text-center align-middle">
+                            <div class="d-flex justify-content-center gap-2">
+                                <a asp-action="ManageRoles" asp-route-userId="@user.UserId" class="btn btn-outline-info btn-sm">
+                                    <i class="fas fa-user-shield me-1"></i>Phân quyền
+                                </a>
+                                <form asp-action="DeleteUser" method="post" onsubmit="return confirm('Xác nhận xóa tài khoản này?')">
+                                    <input type="hidden" name="userId" value="@user.UserId" />
+                                    <button type="submit" class="btn btn-rosy btn-sm">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#userTable').DataTable({
+                "order": [], // Không tự động sắp xếp để giữ thứ tự từ Server
+                "language": {
+                    "search": "",
+                    "searchPlaceholder": "Tìm kiếm tài khoản...",
+                    "paginate": { "previous": "Trước", "next": "Sau" }
+                }
+            });
+            $('.dataTables_filter input').addClass('form-control bg-dark border-secondary text-white rounded-pill px-4 mb-3');
+        });
+    </script>
+}

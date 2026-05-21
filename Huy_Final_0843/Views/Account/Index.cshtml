@@ -1,0 +1,207 @@
+@model Huy_Final_0843.Models.ApplicationUser
+
+@{
+    ViewData["Title"] = "Hồ Sơ Cá Nhân";
+}
+
+<div class="py-5" style="background: var(--main-bg); min-height: 80vh;">
+    <div class="container">
+        @if (TempData["Message"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show bg-success text-white border-0 mb-4 shadow-sm" role="alert">
+                <i class="fas fa-check-circle me-2"></i> @TempData["Message"]
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card glass-card border-0 shadow-lg text-white p-4 text-center h-100">
+                    <div class="mb-4 mt-3">
+                        <div class="position-relative d-inline-block">
+                            <img id="AvatarPreview" 
+                                 src="@(string.IsNullOrEmpty(Model.ProfileImageUrl) ? $"https://ui-avatars.com/api/?name={Model.FullName}&background=bc8f8f&color=fff&size=150" : Model.ProfileImageUrl)" 
+                                 alt="Avatar" 
+                                 class="rounded-circle shadow-lg border border-3 border-secondary"
+                                 style="width: 150px; height: 150px; aspect-ratio: 1/1; object-fit: cover;" />
+                            
+                            <div class="mt-3">
+                                <label for="AvatarInput" class="btn btn-outline-light btn-sm px-3 rounded-pill fw-bold">
+                                    <i class="fas fa-camera me-1"></i> Thay đổi ảnh
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h4 class="fw-bold mb-1">@Model.FullName</h4>
+                    <div class="mb-4">
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <span class="badge bg-danger shadow-sm px-3">Admin Meow Garden</span>
+                        }
+                        else if (User.IsInRole("Staff"))
+                        {
+                            <span class="badge bg-info text-dark shadow-sm px-3">Staff Meow Garden</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary shadow-sm px-3">Thành viên Meow Garden</span>
+                        }
+                    </div>
+
+                    <div class="list-group list-group-flush text-start rounded-3 overflow-hidden shadow-sm">
+                        <a href="#" class="list-group-item list-group-item-action bg-dark text-white border-secondary py-3 active" style="background-color: #bc8f8f !important; border-color: #bc8f8f !important;">
+                            <i class="fas fa-user-circle me-2"></i> Thông tin tài khoản
+                        </a>
+                        <a asp-controller="Order" asp-action="MyOrders" class="list-group-item list-group-item-action bg-dark text-white border-secondary py-3">
+                            <i class="fas fa-shopping-bag me-2"></i> Đơn hàng của tôi
+                        </a>
+                        <a asp-area="Identity" asp-page="/Account/Manage/ChangePassword" class="list-group-item list-group-item-action bg-dark text-white border-secondary py-3">
+                            <i class="fas fa-key me-2"></i> Đổi mật khẩu
+                        </a>
+                        <form asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })" method="post" id="logoutForm" class="d-inline">
+                            <button type="submit" class="list-group-item list-group-item-action bg-dark text-danger border-secondary py-3 text-start w-100">
+                                <i class="fas fa-sign-out-alt me-2"></i> Đăng xuất
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-8">
+                <div class="card glass-card border-0 shadow-lg text-white p-5 h-100">
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="p-3 rounded-3 bg-opacity-25 me-3" style="background: #bc8f8f;">
+                            <i class="fas fa-id-card-alt fa-2x text-white"></i>
+                        </div>
+                        <div>
+                            <h3 class="fw-bold m-0 text-uppercase tracking-wider">Cài đặt hồ sơ</h3>
+                            <p class="text-secondary small m-0">Cập nhật thông tin định danh và địa chỉ của bạn</p>
+                        </div>
+                    </div>
+
+                    <form asp-action="UpdateProfile" method="post" enctype="multipart/form-data">
+                        <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
+                        
+                        <input type="file" id="AvatarInput" name="avatarFile" class="d-none" accept="image/png, image/jpeg" />
+
+                        <div class="row g-3">
+                            <div class="col-12 mb-2">
+                                <div class="form-floating mb-3 position-relative">
+                                    <input type="email" class="form-control bg-dark text-white border-secondary shadow-none" 
+                                           id="floatingEmail" placeholder="name@example.com" value="@Model.Email" readonly disabled style="opacity: 0.6;">
+                                    <label for="floatingEmail" class="text-secondary">Email đăng nhập (Cố định)</label>
+                                    <button type="button" class="btn btn-outline-light btn-sm position-absolute rounded-pill px-3" 
+                                            style="top: 15px; right: 15px;" data-bs-toggle="modal" data-bs-target="#changeEmailModal">
+                                        <i class="fas fa-edit me-1"></i> Đổi Email
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 mb-2">
+                                <div class="form-floating mb-3">
+                                    <input asp-for="FullName" name="fullName" class="form-control bg-dark text-white border-secondary shadow-none" 
+                                           id="floatingFullName" placeholder="Họ và tên" required>
+                                    <label for="floatingFullName" class="text-secondary">Họ và tên</label>
+                                    <span asp-validation-for="FullName" class="text-danger small"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 mb-2">
+                                <div class="form-floating mb-3">
+                                    <input asp-for="PhoneNumber" name="phoneNumber" class="form-control bg-dark text-white border-secondary shadow-none" 
+                                           id="floatingPhone" placeholder="Số điện thoại">
+                                    <label for="floatingPhone" class="text-secondary">Số điện thoại</label>
+                                </div>
+                            </div>
+
+                            <div class="col-12 mb-4">
+                                <div class="form-floating mb-3">
+                                    <textarea asp-for="Address" name="address" class="form-control bg-dark text-white border-secondary shadow-none" 
+                                              id="floatingAddress" placeholder="Địa chỉ giao hàng" style="height: 100px"></textarea>
+                                    <label for="floatingAddress" class="text-secondary">Địa chỉ giao hàng</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn w-100 py-3 fw-bold fs-5 shadow-sm text-uppercase tracking-widest border-0" 
+                                style="background-color: #bc8f8f; color: white;">
+                            <i class="fas fa-save me-2"></i> LƯU THAY ĐỔI
+                        </button>
+                    </form>
+
+                    <div class="mt-4 pt-4 border-top border-secondary text-center small text-secondary">
+                        <p class="mb-0">Trạng thái: @(Model.EmailConfirmed ? "Đã xác minh" : "Chưa xác minh")</p>
+                        <p class="mt-1">Copyright ShopCat 2026 - Premium Experience</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    body.modal-open {
+        overflow: hidden !important;
+        padding-right: 0px !important;
+    }
+    .modal-backdrop {
+        backdrop-filter: blur(5px);
+        background-color: rgba(0, 0, 0, 0.7);
+    }
+    .modal {
+        overflow-y: hidden !important;
+    }
+</style>
+
+@section Modals {
+    <div class="modal fade" id="changeEmailModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark border-secondary shadow-lg">
+                <div class="modal-header border-secondary p-4">
+                    <h5 class="modal-title text-white fw-bold text-uppercase"><i class="fas fa-envelope-open-text me-2" style="color: #bc8f8f;"></i>Yêu cầu đổi Email</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form asp-action="RequestEmailChange" method="post">
+                    <div class="modal-body p-4 text-center">
+                        <p class="text-secondary small mb-4">Chúng tôi sẽ gửi mã OTP gồm 6 chữ số đến địa chỉ Email mới của bạn để xác thực chủ sở hữu.</p>
+                        <div class="form-floating mb-3">
+                            <input type="email" name="newEmail" class="form-control bg-dark text-white border-secondary shadow-none" 
+                                   id="newEmailInput" placeholder="name@example.com" required>
+                            <label for="newEmailInput" class="text-secondary">Nhập Email mới</label>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-secondary p-4">
+                        <button type="button" class="btn btn-secondary px-4 fw-bold shadow-sm" data-bs-dismiss="modal">Hủy</button>
+                        <button type="submit" class="btn px-4 fw-bold shadow-sm" style="background-color: #bc8f8f; color: white;">Gửi mã OTP</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        document.getElementById('AvatarInput').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const preview = document.getElementById('AvatarPreview');
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                };
+
+                reader.readAsDataURL(file);
+                
+                preview.style.opacity = '0.5';
+                setTimeout(() => {
+                    preview.style.opacity = '1';
+                }, 300);
+            }
+        });
+    </script>
+}

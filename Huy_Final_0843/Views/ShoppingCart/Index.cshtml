@@ -1,0 +1,124 @@
+@model Huy_Final_0843.Models.ShoppingCart
+
+<div class="card p-4 shadow-earthy border-standard" style="border-radius: 12px; background: var(--color-surface);">
+    <h3 class="mb-4 text-primary" style="font-family: 'Cormorant Garamond', serif; font-weight: 700;">
+        <i class="fas fa-shopping-cart me-2 text-accent"></i>Giỏ đồ của bé
+    </h3>
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr style="border-bottom: 1.5px solid var(--color-border); font-family: 'DM Sans', sans-serif;">
+                    <th style="width: 100px; border-bottom: none; color: var(--color-text-muted);">Hình Ảnh</th>
+                    <th style="border-bottom: none; color: var(--color-text-muted);">Món Đồ</th>
+                    <th style="border-bottom: none; color: var(--color-text-muted);">Giá</th>
+                    <th class="text-center" style="border-bottom: none; color: var(--color-text-muted);">Số lượng</th>
+                    <th style="border-bottom: none; color: var(--color-text-muted);">Tổng Cộng</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Items)
+                {
+                    <tr style="border-bottom: 1px solid var(--color-border); align-items: center;">
+                        <td class="py-3">
+                            <img src="@item.ImageUrl" class="product-image-square rounded shadow-sm border border-standard" style="width: 60px; height: 60px; object-fit: cover;" />
+                        </td>
+                        <td class="align-middle fw-bold text-on-light">@item.Name</td>
+                        <td class="align-middle text-muted">@item.Price.ToString("#,##0") đ</td>
+                        <td class="text-center align-middle">
+                            <a asp-action="UpdateQuantity" asp-route-productId="@item.ProductId" asp-route-delta="-1" class="btn btn-sm btn-ghost fw-bold" style="padding: 2px 8px;">-</a>
+                            <span class="mx-2 fw-bold text-on-light">@item.Quantity</span>
+                            <a asp-action="UpdateQuantity" asp-route-productId="@item.ProductId" asp-route-delta="1" class="btn btn-sm btn-ghost fw-bold" style="padding: 2px 8px;">+</a>
+                        </td>
+                        <td class="align-middle fw-bold text-primary">@((item.Price * item.Quantity).ToString("#,##0")) đ</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <div class="row mt-4">
+        <!-- Khung Nhập Mã Giảm Giá -->
+        <div class="col-md-6 mb-3">
+             <div class="p-4 rounded-3" style="background: var(--color-bg); border: 1.5px dashed var(--color-border-dark);">
+                 <h5 class="mb-3 fw-bold text-on-light" style="font-family: 'DM Sans', sans-serif;"><i class="fas fa-ticket-alt me-2 text-accent"></i>Mã Giảm Giá Của Bạn</h5>
+                 <div class="input-group">
+                     <input type="text" id="voucherCodeInput" class="form-control text-uppercase fw-bold" placeholder="Nhập mã giảm giá..." value="@ViewBag.AppliedVoucher" style="border: 1.5px solid var(--color-border-dark); border-right: none; font-family: 'DM Sans', sans-serif; font-size: 14px;">
+                     <button class="btn btn-primary-custom" type="button" id="btnApplyVoucher" style="border: 1.5px solid var(--color-primary); border-top-left-radius: 0; border-bottom-left-radius: 0;">ÁP DỤNG</button>
+                 </div>
+                 <div id="voucherMessage" class="small fw-bold mt-2"></div>
+             </div>
+        </div>
+
+        <!-- Khung Tính Tiền -->
+        <div class="col-md-6 text-end">
+            <div class="p-4 rounded-3 shadow-sm" style="background: var(--color-surface); border: 1px solid var(--color-border);">
+                <h5 class="text-uppercase small fw-bold text-muted" style="font-family: 'DM Sans', sans-serif;">Tạm tính: @Model.GetTotalValue().ToString("#,##0") đ</h5>
+                
+                <h5 class="text-uppercase small fw-bold mt-2" id="discountRow" style="display: @(ViewBag.DiscountPercent > 0 ? "block" : "none"); color: var(--color-primary-light); font-family: 'DM Sans', sans-serif;">
+                    Giảm giá Voucher: -<span id="discountPercentTxt">@ViewBag.DiscountPercent</span>%
+                </h5>
+
+                @{
+                    decimal finalTotal = Model.GetTotalValue();
+                    if (ViewBag.DiscountPercent > 0)
+                    {
+                        finalTotal = finalTotal - (finalTotal * ((decimal)ViewBag.DiscountPercent / 100));
+                    }
+                }
+                
+                <hr style="border-color: var(--color-border);">
+                
+                <h3 class="mt-3 mb-0 text-on-light" style="font-family: 'Cormorant Garamond', serif; font-weight: 600;">Thành tiền: <span id="finalTotalTxt" class="fw-bold text-primary">@finalTotal.ToString("#,##0") đ</span></h3>
+                
+                <a asp-action="Checkout" class="btn btn-primary-custom px-5 py-3 mt-4 w-100 fw-bold fs-5 shadow-sm" style="border-radius: 8px;">
+                    <i class="fas fa-money-check-alt me-2"></i>CHỐT ĐƠN CHO BOSS
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            var rootTotal = @Json.Serialize(Model.GetTotalValue());
+
+            $("#btnApplyVoucher").click(function() {
+                var code = $("#voucherCodeInput").val().trim();
+                
+                if(!code) {
+                    $("#voucherMessage").html("<span style='color: #9B1C1C;'>Hãy nhập mã Voucher!</span>");
+                    return;
+                }
+
+                $.ajax({
+                    url: '/ShoppingCart/ApplyVoucher',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(code),
+                    success: function(res) {
+                        if (res.success) {
+                            $("#voucherMessage").html("<span style='color: var(--color-primary);'><i class='fas fa-check-circle me-1'></i>" + res.message + " (" + res.percent + "%)</span>");
+                            
+                            // Hiển thị dòng Giảm giá
+                            $("#discountPercentTxt").text(res.percent);
+                            $("#discountRow").slideDown();
+
+                            // Cập nhật lại số tiền Total
+                            var finalVal = rootTotal - (rootTotal * (res.percent / 100));
+                            $("#finalTotalTxt").text(finalVal.toLocaleString('vi-VN') + " đ");
+                        } else {
+                            $("#voucherMessage").html("<span style='color: #9B1C1C;'><i class='fas fa-times-circle me-1'></i>" + res.message + "</span>");
+                            
+                            // Reset tiền về gốc
+                            $("#discountRow").slideUp();
+                            $("#finalTotalTxt").text(rootTotal.toLocaleString('vi-VN') + " đ");
+                        }
+                    },
+                    error: function() {
+                        $("#voucherMessage").html("<span style='color: #9B1C1C;'>Lỗi kết nối Server!</span>");
+                    }
+                });
+            });
+        });
+    </script>
+}

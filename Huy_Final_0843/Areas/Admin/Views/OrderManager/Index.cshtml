@@ -1,0 +1,214 @@
+@model IEnumerable<Huy_Final_0843.Models.Order>
+
+@{
+    ViewData["Title"] = "Quản lý Đơn hàng";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold m-0"><i class="fas fa-clipboard-list me-2"></i>Danh Sách Đơn Hàng</h3>
+    
+    @if (User.IsInRole(SD.Role_Admin))
+    {
+        <button type="button" class="btn btn-danger px-4 fw-bold shadow" onclick="handleClearData()" style="position: relative; z-index: 999; cursor: pointer !important;">
+            <i class="fas fa-trash-alt me-2"></i>DỌN SẠCH DỮ LIỆU
+        </button>
+    }
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success border-0 shadow-sm bg-success bg-opacity-10 text-success mb-4 py-3">
+        <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger border-0 shadow-sm bg-danger bg-opacity-10 text-danger mb-4 py-3">
+        <i class="fas fa-exclamation-circle me-2"></i>@TempData["Error"]
+    </div>
+}
+
+<div class="glass-card mt-2">
+    <div class="table-responsive">
+        <table id="orderTable" class="table table-dark table-hover mb-0">
+            <thead>
+                <tr class="text-secondary text-uppercase small">
+                    <th>Mã Đơn</th>
+                    <th>Tên Khách Hàng</th>
+                    <th>Ngày Đặt</th>
+                    <th class="text-end">Tổng Tiền</th>
+                    <th class="text-center">Trạng Thái</th>
+                    <th class="text-center">Thao Tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr id="order-row-@item.Id">
+                        <td class="fw-bold align-middle">
+                            <span style="color: var(--accent-color);">#@item.Id</span>
+                        </td>
+                        <td class="align-middle">
+                            <div class="fw-bold text-white">@(item.ApplicationUser?.FullName ?? "Khách")</div>
+                            <div class="text-secondary small">ID: @item.UserId</div>
+                        </td>
+                        <td class="align-middle">@item.OrderDate.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td class="text-end fw-bold align-middle">
+                            <span class="text-white">@item.TotalPrice.ToString("N0")</span>
+                            <span style="color: var(--accent-color);">đ</span>
+                        </td>
+                        <td class="text-center align-middle">
+                            @switch (item.Status)
+                            {
+                                case OrderStatus.Pending:
+                                    <span class="badge bg-warning text-dark"><i class="fas fa-clock me-1"></i>Chờ xử lý</span>
+                                    break;
+                                case OrderStatus.Shipping:
+                                    <span class="badge bg-info text-dark"><i class="fas fa-truck me-1"></i>Đang giao</span>
+                                    break;
+                                case OrderStatus.Completed:
+                                    <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Hoàn thành</span>
+                                    break;
+                                case OrderStatus.Cancelled:
+                                    <span class="badge bg-danger"><i class="fas fa-times-circle me-1"></i>Đã hủy</span>
+                                    break;
+                            }
+                        </td>
+                        <td class="text-center align-middle">
+                            <div class="d-flex justify-content-center gap-1">
+                                @if (item.Status == OrderStatus.Pending)
+                                {
+                                    <form asp-action="UpdateStatus" method="post" class="m-0">
+                                        <input type="hidden" name="id" value="@item.Id" />
+                                        <input type="hidden" name="status" value="@OrderStatus.Shipping" />
+                                        <button type="submit" class="btn btn-outline-info btn-sm" title="Xác nhận & Giao hàng"><i class="fas fa-shipping-fast"></i></button>
+                                    </form>
+                                    <button type="button" class="btn btn-rosy btn-sm" onclick="openCancelModal(@item.Id)" title="Hủy đơn"><i class="fas fa-ban"></i></button>
+                                }
+                                else if (item.Status == OrderStatus.Shipping)
+                                {
+                                    <form asp-action="UpdateStatus" method="post" class="m-0">
+                                        <input type="hidden" name="id" value="@item.Id" />
+                                        <input type="hidden" name="status" value="@OrderStatus.Completed" />
+                                        <button type="submit" class="btn btn-success btn-sm" title="Hoàn thành"><i class="fas fa-check"></i></button>
+                                    </form>
+                                }
+                                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-light btn-sm"><i class="fas fa-eye"></i></a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal Hủy Đơn -->
+<div class="modal fade" id="cancelModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-white border-secondary glass-card">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title text-danger"><i class="fas fa-ban me-2"></i>Hủy Đơn Hàng #<span id="cancelOrderIdText"></span></h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form asp-action="UpdateStatus" method="post">
+                <div class="modal-body">
+                    <input type="hidden" name="id" id="cancelOrderId" />
+                    <input type="hidden" name="status" value="@OrderStatus.Cancelled" />
+                    <label class="form-label text-secondary small">Lý do hủy (Khách hàng sẽ nhìn thấy lý do này):</label>
+                    <textarea name="reason" class="form-control bg-black text-white border-secondary" rows="3" required placeholder="Ví dụ: Hết hàng, Sai thông tin..."></textarea>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-rosy px-4">Xác Nhận Hủy</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.min.js"></script>
+    <script>
+        function openCancelModal(id) {
+            $("#cancelOrderId").val(id);
+            $("#cancelOrderIdText").text(id);
+            var myModal = new bootstrap.Modal(document.getElementById('cancelModal'));
+            myModal.show();
+        }
+
+        $(document).ready(function () {
+            $('#orderTable').DataTable({
+                "language": {
+                    "search": "",
+                    "searchPlaceholder": "Tìm kiếm đơn hàng...",
+                    "paginate": { "previous": "Trước", "next": "Sau" }
+                },
+                "order": [[2, "desc"]]
+            });
+            $('.dataTables_filter input').addClass('form-control bg-dark border-secondary text-white rounded-pill px-4 mb-3');
+
+            // --- SIGNALR: LẮNG NGHE ĐƠN HÀNG MỚI ---
+            const connection = new signalR.HubConnectionBuilder()
+                .withUrl("/orderHub")
+                .build();
+
+            connection.on("ReceiveNewOrder", function (orderId, customerName, brand, orderTime) {
+                // 1. Hiện thông báo Toast/Alert kèm thương hiệu và thời gian
+                alert("🔔 [" + brand + "] ĐƠN HÀNG MỚI!\n" + 
+                      "Mã: #" + orderId + "\n" +
+                      "Khách: " + customerName + "\n" +
+                      "Lúc: " + (orderTime || "Vừa xong"));
+                
+                // 2. Load lại bảng
+                location.reload(); 
+            });
+
+            // --- SIGNALR: LẮNG NGHE LỆNH RESET DỮ LIỆU ---
+            connection.on("RefreshOrders", function () {
+                location.reload();
+            });
+
+            connection.start().catch(err => console.error(err.toString()));
+
+            // --- HIỂN THỊ TOAST NẾU CÓ THÔNG BÁO TỪ SERVER ---
+            @if (TempData["Success"] != null)
+            {
+                <text>
+                const Toast = Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true
+                });
+                Toast.fire({
+                    icon: 'success',
+                    title: '<span style="color: #bc8f8f; font-weight: bold;">Hệ thống</span>',
+                    text: '@Html.Raw(TempData["Success"])'
+                });
+                </text>
+            }
+        });
+
+        // --- HÀM XỬ LÝ DỌN SẠCH DỮ LIỆU (USER REQUEST) ---
+        function handleClearData() {
+            Swal.fire({
+                title: 'Xác nhận dọn dẹp?',
+                text: "Toàn bộ đơn hàng sẽ bị xóa sạch và ID sẽ reset về 1!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Đồng ý, xóa hết!',
+                cancelButtonText: 'Hủy'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Gọi Action xóa bằng cách chuyển hướng 
+                    window.location.href = '/Admin/OrderManager/ClearAllOrders';
+                }
+            });
+        }
+    </script>
+}

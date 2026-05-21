@@ -1,0 +1,64 @@
+@model Huy_Final_0843.Models.Order
+@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
+@{
+    ViewData["Title"] = "Thanh toán Chuyển khoản VietQR";
+}
+
+<div class="row justify-content-center mt-5 mb-5">
+    <div class="col-md-6 col-lg-5">
+        <div class="card glass-card border-secondary text-white bg-dark shadow-lg">
+            <div class="card-header text-center border-secondary py-3">
+                <h4 class="fw-bold m-0" style="color: var(--accent-color);">
+                    <i class="fas fa-qrcode me-2"></i>THANH TOÁN ĐƠN HÀNG
+                </h4>
+            </div>
+            
+            <div class="card-body p-4 text-center">
+                
+                <div class="alert bg-info bg-opacity-25 border-info text-white mb-4">
+                    <p class="mb-1 text-uppercase small text-info fw-bold">Tổng tiền cần thanh toán:</p>
+                    <h2 class="display-6 fw-bold m-0 text-white">@Model.TotalPrice.ToString("N0") <span class="fs-6 text-muted">VNĐ</span></h2>
+                </div>
+
+                <!-- KHU VỰC HIỂN THỊ MÃ QR -->
+                <div class="bg-white p-3 rounded-3 d-inline-block mb-4 shadow" style="border: 4px solid var(--accent-color);">
+                    @{
+                        // Xây dựng URL động từ VietQR.io (Lấy cấu hình động từ appsettings.json)
+                        var qrUrl = $"https://img.vietqr.io/image/{Configuration["VietQR:BankCode"]}-{Configuration["VietQR:BankAccount"]}-compact2.png?amount={(long)Model.TotalPrice}&addInfo=Thanh toan don hang {Model.Id}&accountName={Configuration["VietQR:AccountName"]}";
+                    }
+                    <img src="@qrUrl" alt="Mã QR Thanh Toán MB Bank" class="img-fluid rounded" style="max-width: 300px; aspect-ratio: 1/1;" />
+                </div>
+                
+                <div class="mb-4">
+                    <p class="mb-0 fw-bold text-white small">
+                        Ngân hàng: @Configuration["VietQR:BankCode"] | STK: @Configuration["VietQR:BankAccount"] | Tên: @Configuration["VietQR:AccountName"]
+                    </p>
+                </div>
+                <!-- ============================ -->
+
+                <div class="text-start bg-secondary bg-opacity-25 p-3 rounded mb-4">
+                    <p class="mb-1 text-secondary small text-uppercase fw-bold">Hướng dẫn thanh toán</p>
+                    <ol class="small mb-0 ps-3">
+                        <li>Mở ứng dụng Mobile Banking của bạn.</li>
+                        <li>Chọn tính năng <strong>Quét mã QR</strong>.</li>
+                        <li>Đảm bảo số tiền đúng <strong>@Model.TotalPrice.ToString("N0") VNĐ</strong>.</li>
+                        <li>Tuyệt đối KHÔNG sửa nội dung chuyển khoản là <strong>@Model.Id</strong>.</li>
+                    </ol>
+                </div>
+                
+                <form asp-action="ConfirmTransfer" method="post">
+                    <input type="hidden" name="orderId" value="@Model.Id" />
+                    <button type="submit" class="btn btn-neon w-100 py-3 d-flex justify-content-center align-items-center">
+                        <i class="fas fa-check-circle fa-lg me-2"></i>
+                        <span class="fw-bold fs-5">TÔI ĐÃ CHUYỂN KHOẢN</span>
+                    </button>
+                </form>
+
+            </div>
+            <div class="card-footer text-center border-secondary py-3 text-secondary small">
+                Sau khi thanh toán, vui lòng chờ Admin đối soát và xác nhận đơn hàng của bạn.
+            </div>
+        </div>
+    </div>
+</div>

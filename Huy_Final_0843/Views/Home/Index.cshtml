@@ -1,0 +1,278 @@
+@model IEnumerable<Huy_Final_0843.Models.Product>
+@{
+    ViewData["Title"] = "Trang Chủ";
+}
+
+@section Meta {
+    <meta property="og:title" content="Meow Garden - Thiên đường phụ kiện thú cưng" />
+    <meta property="og:description" content="Khám phá bộ sưu tập sản phẩm cao cấp dành cho các bé mèo tại ShopCat. Uy tín, chất lượng, rước ngay về nhà!" />
+    <meta property="og:image" content="https://shopcat.vn/images/og-banner.jpg" />
+    <meta property="og:type" content="website" />
+}
+
+<!-- HERO BANNER -->
+<section class="hero" style="margin: -48px -32px 48px -32px;">
+    <div class="hero-inner container-fluid">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-5 hero-left">
+                <span class="hero-label">Chăm Sóc Thú Cưng Professional</span>
+                <h1>Nơi tình yêu nở rộ<br>cùng <em>bé mèo</em> của bạn</h1>
+                <p>Khám phá bộ sưu tập sản phẩm cao cấp, từ thức ăn dinh dưỡng đến phụ kiện thời trang, được chọn lọc kỹ càng vì hạnh phúc của các bé.</p>
+                
+                <div class="hero-actions">
+                    <a href="#product-grid" class="btn-hero-primary">Sắm Đồ Cho Boss</a>
+                    <a href="#" class="btn-hero-ghost">Cẩm Nang Nuôi Mèo</a>
+                </div>
+
+                <div class="hero-stats">
+                    <div>
+                        <div class="stat-num">5k+</div>
+                        <div class="stat-label">KHÁCH HÀNG TIN DÙNG</div>
+                    </div>
+                    <div>
+                        <div class="stat-num">100%</div>
+                        <div class="stat-label">SẢN PHẨM CHÍNH HÃNG</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-7 hero-right">
+                <div id="heroCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel" data-bs-interval="4000">
+                    <div class="carousel-indicators">
+                        <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+                        <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
+                        <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="2" aria-label="Slide 3"></button>
+                    </div>
+                    <div class="carousel-inner shadow-lg rounded-4">
+                        <div class="carousel-item active">
+                            <img src="/images/Gustav_chocolate.jpg" class="d-block w-100 carousel-img" alt="Slide 1">
+                            <div class="carousel-caption-custom">
+                                <h5>Ưu Đãi Pate Siêu Ngon</h5>
+                                <p>Giảm giá đến 30% cho các loại pate hạt nhập khẩu</p>
+                            </div>
+                        </div>
+                        <div class="carousel-item">
+                            <img src="/images/Norwegian-Forest-Meo-rung-Na-Uy-shopvatnuoivn-nai-pet-c0.jpg" class="d-block w-100 carousel-img" alt="Slide 2">
+                            <div class="carousel-caption-custom">
+                                <h5>Cát Vệ Sinh Hữu Cơ</h5>
+                                <p>Khử mùi tuyệt đối, an toàn cho cả sen và boss</p>
+                            </div>
+                        </div>
+                        <div class="carousel-item">
+                            <img src="/images/z6713770849950_4e43d4d0343461cbd3ed626ba63b173b.jpg" class="d-block w-100 carousel-img" alt="Slide 3">
+                            <div class="carousel-caption-custom">
+                                <h5>Đồ Chơi Thông Minh</h5>
+                                <p>Kích thích tư duy, vận động linh hoạt mỗi ngày</p>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CATEGORIES -->
+<section class="categories" style="margin: 0 -32px 48px -32px;">
+    <div class="categories-inner">
+        <div class="section-header">
+            <h2 class="section-title">Danh Mục Mua Sắm</h2>
+        </div>
+        
+        <div class="cat-grid">
+            <a href="@Url.Action("Index", new { categoryId = "" })" class="cat-card @(ViewBag.CurrentCategory == null ? "active" : "")">
+                <div class="cat-icon">🐾</div>
+                <div>
+                    <div class="cat-name">Tất cả</div>
+                </div>
+            </a>
+            @if (ViewBag.Categories != null)
+            {
+                foreach (var cat in ViewBag.Categories)
+                {
+                    <a href="@Url.Action("Index", new { categoryId = cat.Id })" class="cat-card @((ViewBag.CurrentCategory != null && (int)ViewBag.CurrentCategory == cat.Id) ? "active" : "")">
+                        <div class="cat-icon">✨</div>
+                        <div>
+                            <div class="cat-name">@cat.Name</div>
+                        </div>
+                    </a>
+                }
+            }
+        </div>
+    </div>
+</section>
+
+<!-- MAIN LAYOUT -->
+<div class="main-inner" id="product-grid">
+    
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="filter-card">
+            <h3 class="filter-title">Bộ Lọc Tìm Kiếm</h3>
+            <form id="filterForm" asp-controller="Home" asp-action="Index" method="get">
+                <input type="hidden" name="sortOrder" id="sortOrderHidden" value="@ViewBag.SortOrder" />
+                <input type="hidden" name="categoryId" value="@ViewBag.CurrentCategory" />
+
+                <label class="filter-label">Tìm theo tên</label>
+                <input type="text" name="searchString" value="@ViewBag.SearchString" class="filter-input" placeholder="Ví dụ: Pate Whiskas...">
+                
+                <div class="filter-divider"></div>
+
+                <label class="filter-label">Khoảng giá</label>
+                <div class="price-range">
+                    <input type="number" name="minPrice" value="@ViewBag.MinPrice" class="price-input" placeholder="Từ" step="10000">
+                    <span class="price-sep">-</span>
+                    <input type="number" name="maxPrice" value="@ViewBag.MaxPrice" class="price-input" placeholder="Đến" step="10000">
+                </div>
+
+                <button type="submit" class="btn-apply mt-4">Áp dụng lọc</button>
+                <a asp-action="Index" class="btn-clear">Xóa bộ lọc</a>
+            </form>
+        </div>
+
+        <div class="support-card">
+            <h4 class="support-title">Cần hỗ trợ?</h4>
+            <p class="support-sub">Đội ngũ chuyên gia của chúng tôi luôn sẵn sàng giúp bạn chọn sản phẩm phù hợp nhất.</p>
+            
+            <a href="https://facebook.com/hysoul2k" class="support-btn" target="_blank">
+                <div class="support-icon fb-icon"><i class="fab fa-facebook-f text-on-dark"></i></div>
+                <span>Chat qua Fanpage</span>
+            </a>
+            
+            <a href="https://zalo.me/0908758533" class="support-btn" target="_blank">
+                <div class="support-icon zalo-icon"><i class="fas fa-phone-alt text-on-dark"></i></div>
+                <span>Liên hệ Zalo</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- PRODUCT LIST -->
+    <main class="products-area">
+        <div class="products-top">
+            <div class="products-count">Hiển thị <strong>@Model.Count()</strong> món đồ</div>
+            <select class="sort-select" onchange="applySort(this.value)">
+                <option value="" selected="@(string.IsNullOrEmpty(ViewBag.SortOrder))">Mới nhất</option>
+                <option value="price_asc" selected="@(ViewBag.SortOrder == "price_asc")">Giá: Thấp đến cao</option>
+                <option value="price_desc" selected="@(ViewBag.SortOrder == "price_desc")">Giá: Cao đến thấp</option>
+                <option value="rating" selected="@(ViewBag.SortOrder == "rating")">Đánh giá cao nhất</option>
+            </select>
+        </div>
+
+        @if (!Model.Any())
+        {
+            <div class="text-center py-5 bg-warm-white rounded shadow-earthy-sm">
+                <i class="fas fa-cat fa-4x mb-3" style="color: var(--sand);"></i>
+                <h4 class="text-primary" style="font-family: 'Cormorant Garamond', serif;">Không tìm thấy kết quả nào!</h4>
+                <p class="text-muted">Hãy thử xóa bộ lọc hoặc tìm kiếm tên khác.</p>
+            </div>
+        }
+        else
+        {
+            <div class="product-grid">
+                @foreach (var item in Model)
+                {
+                    <div class="product-card position-relative stock-status-container shadow-earthy-hover" data-product-id="@item.Id">
+                        <a href="/Product/Details/@item.Id" class="product-img-wrap product-image-target">
+                            @if (item.StockQuantity <= 0)
+                            {
+                                <div class="badge-stock danger stock-badge">Hết Hàng</div>
+                            }
+                            else if (item.StockQuantity < 10)
+                            {
+                                <div class="badge-stock warning stock-badge">Sắp Hết (@item.StockQuantity)</div>
+                            }
+                            else
+                            {
+                                <div class="badge-stock stock-badge">Còn Hàng (@item.StockQuantity)</div>
+                            }
+                            <img src="@item.ImageUrl" alt="@item.Name">
+                        </a>
+                        
+                        <div class="product-body">
+                            @{
+                                double avgRating = item.Reviews != null && item.Reviews.Any() ? item.Reviews.Average(r => r.Rating) : 0;
+                                int totalReviews = item.Reviews != null ? item.Reviews.Count : 0;
+                            }
+                            <div class="stars">
+                                @for (int i = 1; i <= 5; i++)
+                                {
+                                    if (i <= Math.Round(avgRating)) { <i class="fas fa-star star filled"></i> }
+                                    else { <i class="fas fa-star star"></i> }
+                                }
+                                <span class="review-count">(@totalReviews)</span>
+                            </div>
+                            
+                            <a href="/Product/Details/@item.Id" class="product-name">@item.Name</a>
+                            
+                            <div class="product-footer">
+                                <div class="price">@item.Price.ToString("#,##0")<small style="font-size:12px; font-weight:400; font-family:'DM Sans', sans-serif;">đ</small></div>
+                                
+                                @if (item.StockQuantity > 0)
+                                {
+                                    <div class="qty-add add-to-cart-form">
+                                        <div class="qty-control d-none">
+                                            <input type="hidden" name="quantity" value="1">
+                                        </div>
+                                        <button type="button" class="add-to-cart btn-add-to-cart-ajax" data-product-id="@item.Id">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M12 10v6"/><path d="M9 13h6"/></svg>
+                                            Rước Về
+                                        </button>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <a href="/Product/Details/@item.Id" class="add-to-cart" style="background: var(--bark);">
+                                        Chi tiết
+                                    </a>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- PHÂN TRANG -->
+            @if (ViewBag.TotalPages > 1)
+            {
+                <div class="pagination-custom">
+                    @if (ViewBag.CurrentPage > 1)
+                    {
+                        <a href="@Url.Action("Index", new { page = ViewBag.CurrentPage - 1, searchString = ViewBag.SearchString, categoryId = ViewBag.CurrentCategory, minPrice = ViewBag.MinPrice, maxPrice = ViewBag.MaxPrice })" class="page-btn">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    }
+                    
+                    @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                    {
+                        <a href="@Url.Action("Index", new { page = i, searchString = ViewBag.SearchString, categoryId = ViewBag.CurrentCategory, minPrice = ViewBag.MinPrice, maxPrice = ViewBag.MaxPrice })" class="page-btn @(i == ViewBag.CurrentPage ? "active" : "")">
+                            @i
+                        </a>
+                    }
+
+                    @if (ViewBag.CurrentPage < ViewBag.TotalPages)
+                    {
+                        <a href="@Url.Action("Index", new { page = ViewBag.CurrentPage + 1, searchString = ViewBag.SearchString, categoryId = ViewBag.CurrentCategory, minPrice = ViewBag.MinPrice, maxPrice = ViewBag.MaxPrice })" class="page-btn">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    }
+                </div>
+            }
+        }
+    </main>
+</div>
+
+@section Scripts {
+    <script>
+        function applySort(val) {
+            document.getElementById('sortOrderHidden').value = val;
+            document.getElementById('filterForm').submit();
+        }
+    </script>
+}

@@ -1,0 +1,64 @@
+@model IEnumerable<Huy_Final_0843.Models.AuditLog>
+@{
+    ViewData["Title"] = "Lịch Sử Hoạt Động";
+    Layout = "_AdminLayout";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold m-0"><i class="fas fa-history me-2"></i>Lịch Sử Hoạt Động</h3>
+</div>
+
+<div class="glass-card mt-2">
+    <div class="table-responsive">
+        <table id="auditTable" class="table table-dark table-hover mb-0">
+            <thead>
+                <tr class="text-secondary text-uppercase small">
+                    <th>Thời Gian</th>
+                    <th>Người Thực Hiện</th>
+                    <th>Hành Động</th>
+                    <th>Bảng Tác Động</th>
+                    <th>ID Đối Tượng</th>
+                    <th>Chi Tiết</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var log in Model)
+                {
+                    <tr>
+                        <td class="align-middle">@log.Timestamp.ToString("dd/MM/yyyy HH:mm:ss")</td>
+                        <td class="align-middle">
+                            <span class="fw-bold">@log.User?.FullName</span><br />
+                            <small class="text-secondary">@log.User?.Email</small>
+                        </td>
+                        <td class="align-middle">
+                            @{
+                                var badgeClass = log.Action.Contains("Xóa") ? "bg-danger" : 
+                                               log.Action.Contains("Thêm") ? "bg-success" : "bg-primary";
+                            }
+                            <span class="badge @badgeClass">@log.Action</span>
+                        </td>
+                        <td class="align-middle text-secondary">@log.TableName</td>
+                        <td class="align-middle"><code>@log.EntityId</code></td>
+                        <td class="align-middle small">@log.Details</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#auditTable').DataTable({
+                "order": [[0, "desc"]],
+                "language": {
+                    "search": "",
+                    "searchPlaceholder": "Tìm lịch sử...",
+                    "paginate": { "previous": "Trước", "next": "Sau" }
+                }
+            });
+            $('.dataTables_filter input').addClass('form-control bg-dark border-secondary text-white rounded-pill px-4 mb-3');
+        });
+    </script>
+}

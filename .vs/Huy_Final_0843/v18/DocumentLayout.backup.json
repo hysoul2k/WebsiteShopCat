@@ -1,0 +1,373 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\huy\\Documents\\Huy_Final_0843\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{A32C2F4C-FAC0-4192-BA02-F163E8F6AF04}|Huy_Final_0843\\Huy_Final_0843.csproj|c:\\users\\huy\\documents\\huy_final_0843\\huy_final_0843\\areas\\admin\\views\\admin.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{A32C2F4C-FAC0-4192-BA02-F163E8F6AF04}|Huy_Final_0843\\Huy_Final_0843.csproj|solutionrelative:huy_final_0843\\areas\\admin\\views\\admin.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A32C2F4C-FAC0-4192-BA02-F163E8F6AF04}|Huy_Final_0843\\Huy_Final_0843.csproj|c:\\users\\huy\\documents\\huy_final_0843\\huy_final_0843\\areas\\identity\\pages\\account\\register.cshtml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A32C2F4C-FAC0-4192-BA02-F163E8F6AF04}|Huy_Final_0843\\Huy_Final_0843.csproj|solutionrelative:huy_final_0843\\areas\\identity\\pages\\account\\register.cshtml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A32C2F4C-FAC0-4192-BA02-F163E8F6AF04}|Huy_Final_0843\\Huy_Final_0843.csproj|c:\\users\\huy\\documents\\huy_final_0843\\huy_final_0843\\areas\\identity\\pages\\account\\register.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{A32C2F4C-FAC0-4192-BA02-F163E8F6AF04}|Huy_Final_0843\\Huy_Final_0843.csproj|solutionrelative:huy_final_0843\\areas\\identity\\pages\\account\\register.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A32C2F4C-FAC0-4192-BA02-F163E8F6AF04}|Huy_Final_0843\\Huy_Final_0843.csproj|c:\\users\\huy\\documents\\huy_final_0843\\huy_final_0843\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{A32C2F4C-FAC0-4192-BA02-F163E8F6AF04}|Huy_Final_0843\\Huy_Final_0843.csproj|solutionrelative:huy_final_0843\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A32C2F4C-FAC0-4192-BA02-F163E8F6AF04}|Huy_Final_0843\\Huy_Final_0843.csproj|c:\\users\\huy\\documents\\huy_final_0843\\huy_final_0843\\appsettings.development.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{A32C2F4C-FAC0-4192-BA02-F163E8F6AF04}|Huy_Final_0843\\Huy_Final_0843.csproj|solutionrelative:huy_final_0843\\appsettings.development.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A32C2F4C-FAC0-4192-BA02-F163E8F6AF04}|Huy_Final_0843\\Huy_Final_0843.csproj|c:\\users\\huy\\documents\\huy_final_0843\\huy_final_0843\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A32C2F4C-FAC0-4192-BA02-F163E8F6AF04}|Huy_Final_0843\\Huy_Final_0843.csproj|solutionrelative:huy_final_0843\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A32C2F4C-FAC0-4192-BA02-F163E8F6AF04}|Huy_Final_0843\\Huy_Final_0843.csproj|c:\\users\\huy\\documents\\huy_final_0843\\huy_final_0843\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{A32C2F4C-FAC0-4192-BA02-F163E8F6AF04}|Huy_Final_0843\\Huy_Final_0843.csproj|solutionrelative:huy_final_0843\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A32C2F4C-FAC0-4192-BA02-F163E8F6AF04}|Huy_Final_0843\\Huy_Final_0843.csproj|c:\\users\\huy\\documents\\huy_final_0843\\huy_final_0843\\huy_final_0843.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{A32C2F4C-FAC0-4192-BA02-F163E8F6AF04}|Huy_Final_0843\\Huy_Final_0843.csproj|solutionrelative:huy_final_0843\\huy_final_0843.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A32C2F4C-FAC0-4192-BA02-F163E8F6AF04}|Huy_Final_0843\\Huy_Final_0843.csproj|c:\\users\\huy\\documents\\huy_final_0843\\huy_final_0843\\views\\product\\display.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{A32C2F4C-FAC0-4192-BA02-F163E8F6AF04}|Huy_Final_0843\\Huy_Final_0843.csproj|solutionrelative:huy_final_0843\\views\\product\\display.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A32C2F4C-FAC0-4192-BA02-F163E8F6AF04}|Huy_Final_0843\\Huy_Final_0843.csproj|c:\\users\\huy\\documents\\huy_final_0843\\huy_final_0843\\views\\product\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{A32C2F4C-FAC0-4192-BA02-F163E8F6AF04}|Huy_Final_0843\\Huy_Final_0843.csproj|solutionrelative:huy_final_0843\\views\\product\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A32C2F4C-FAC0-4192-BA02-F163E8F6AF04}|Huy_Final_0843\\Huy_Final_0843.csproj|c:\\users\\huy\\documents\\huy_final_0843\\huy_final_0843\\views\\product\\update.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{A32C2F4C-FAC0-4192-BA02-F163E8F6AF04}|Huy_Final_0843\\Huy_Final_0843.csproj|solutionrelative:huy_final_0843\\views\\product\\update.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A32C2F4C-FAC0-4192-BA02-F163E8F6AF04}|Huy_Final_0843\\Huy_Final_0843.csproj|c:\\users\\huy\\documents\\huy_final_0843\\huy_final_0843\\views\\product\\add.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{A32C2F4C-FAC0-4192-BA02-F163E8F6AF04}|Huy_Final_0843\\Huy_Final_0843.csproj|solutionrelative:huy_final_0843\\views\\product\\add.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A32C2F4C-FAC0-4192-BA02-F163E8F6AF04}|Huy_Final_0843\\Huy_Final_0843.csproj|c:\\users\\huy\\documents\\huy_final_0843\\huy_final_0843\\controllers\\productcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A32C2F4C-FAC0-4192-BA02-F163E8F6AF04}|Huy_Final_0843\\Huy_Final_0843.csproj|solutionrelative:huy_final_0843\\controllers\\productcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A32C2F4C-FAC0-4192-BA02-F163E8F6AF04}|Huy_Final_0843\\Huy_Final_0843.csproj|c:\\users\\huy\\documents\\huy_final_0843\\huy_final_0843\\models\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A32C2F4C-FAC0-4192-BA02-F163E8F6AF04}|Huy_Final_0843\\Huy_Final_0843.csproj|solutionrelative:huy_final_0843\\models\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A32C2F4C-FAC0-4192-BA02-F163E8F6AF04}|Huy_Final_0843\\Huy_Final_0843.csproj|c:\\users\\huy\\documents\\huy_final_0843\\huy_final_0843\\repositories\\efproductrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A32C2F4C-FAC0-4192-BA02-F163E8F6AF04}|Huy_Final_0843\\Huy_Final_0843.csproj|solutionrelative:huy_final_0843\\repositories\\efproductrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A32C2F4C-FAC0-4192-BA02-F163E8F6AF04}|Huy_Final_0843\\Huy_Final_0843.csproj|c:\\users\\huy\\documents\\huy_final_0843\\huy_final_0843\\repositories\\efcategoryrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A32C2F4C-FAC0-4192-BA02-F163E8F6AF04}|Huy_Final_0843\\Huy_Final_0843.csproj|solutionrelative:huy_final_0843\\repositories\\efcategoryrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A32C2F4C-FAC0-4192-BA02-F163E8F6AF04}|Huy_Final_0843\\Huy_Final_0843.csproj|c:\\users\\huy\\documents\\huy_final_0843\\huy_final_0843\\repositories\\icategoryrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A32C2F4C-FAC0-4192-BA02-F163E8F6AF04}|Huy_Final_0843\\Huy_Final_0843.csproj|solutionrelative:huy_final_0843\\repositories\\icategoryrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A32C2F4C-FAC0-4192-BA02-F163E8F6AF04}|Huy_Final_0843\\Huy_Final_0843.csproj|c:\\users\\huy\\documents\\huy_final_0843\\huy_final_0843\\repositories\\iproductrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A32C2F4C-FAC0-4192-BA02-F163E8F6AF04}|Huy_Final_0843\\Huy_Final_0843.csproj|solutionrelative:huy_final_0843\\repositories\\iproductrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A32C2F4C-FAC0-4192-BA02-F163E8F6AF04}|Huy_Final_0843\\Huy_Final_0843.csproj|c:\\users\\huy\\documents\\huy_final_0843\\huy_final_0843\\models\\category.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A32C2F4C-FAC0-4192-BA02-F163E8F6AF04}|Huy_Final_0843\\Huy_Final_0843.csproj|solutionrelative:huy_final_0843\\models\\category.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A32C2F4C-FAC0-4192-BA02-F163E8F6AF04}|Huy_Final_0843\\Huy_Final_0843.csproj|c:\\users\\huy\\documents\\huy_final_0843\\huy_final_0843\\models\\productimage.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A32C2F4C-FAC0-4192-BA02-F163E8F6AF04}|Huy_Final_0843\\Huy_Final_0843.csproj|solutionrelative:huy_final_0843\\models\\productimage.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A32C2F4C-FAC0-4192-BA02-F163E8F6AF04}|Huy_Final_0843\\Huy_Final_0843.csproj|c:\\users\\huy\\documents\\huy_final_0843\\huy_final_0843\\models\\product.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A32C2F4C-FAC0-4192-BA02-F163E8F6AF04}|Huy_Final_0843\\Huy_Final_0843.csproj|solutionrelative:huy_final_0843\\models\\product.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A32C2F4C-FAC0-4192-BA02-F163E8F6AF04}|Huy_Final_0843\\Huy_Final_0843.csproj|c:\\users\\huy\\documents\\huy_final_0843\\huy_final_0843\\migrations\\20260314060547_initialcreate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A32C2F4C-FAC0-4192-BA02-F163E8F6AF04}|Huy_Final_0843\\Huy_Final_0843.csproj|solutionrelative:huy_final_0843\\migrations\\20260314060547_initialcreate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Admin.cshtml",
+              "DocumentMoniker": "C:\\Users\\huy\\Documents\\Huy_Final_0843\\Huy_Final_0843\\Areas\\Admin\\Views\\Admin.cshtml",
+              "RelativeDocumentMoniker": "Huy_Final_0843\\Areas\\Admin\\Views\\Admin.cshtml",
+              "ToolTip": "C:\\Users\\huy\\Documents\\Huy_Final_0843\\Huy_Final_0843\\Areas\\Admin\\Views\\Admin.cshtml",
+              "RelativeToolTip": "Huy_Final_0843\\Areas\\Admin\\Views\\Admin.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-03-30T16:06:29.22Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Register.cshtml.cs",
+              "DocumentMoniker": "C:\\Users\\huy\\Documents\\Huy_Final_0843\\Huy_Final_0843\\Areas\\Identity\\Pages\\Account\\Register.cshtml.cs",
+              "RelativeDocumentMoniker": "Huy_Final_0843\\Areas\\Identity\\Pages\\Account\\Register.cshtml.cs",
+              "ToolTip": "C:\\Users\\huy\\Documents\\Huy_Final_0843\\Huy_Final_0843\\Areas\\Identity\\Pages\\Account\\Register.cshtml.cs",
+              "RelativeToolTip": "Huy_Final_0843\\Areas\\Identity\\Pages\\Account\\Register.cshtml.cs",
+              "ViewState": "AgIAAFcAAAAAAAAAAAAqwJIAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-30T15:46:21.828Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Register.cshtml",
+              "DocumentMoniker": "C:\\Users\\huy\\Documents\\Huy_Final_0843\\Huy_Final_0843\\Areas\\Identity\\Pages\\Account\\Register.cshtml",
+              "RelativeDocumentMoniker": "Huy_Final_0843\\Areas\\Identity\\Pages\\Account\\Register.cshtml",
+              "ToolTip": "C:\\Users\\huy\\Documents\\Huy_Final_0843\\Huy_Final_0843\\Areas\\Identity\\Pages\\Account\\Register.cshtml",
+              "RelativeToolTip": "Huy_Final_0843\\Areas\\Identity\\Pages\\Account\\Register.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAC0AAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-03-30T15:38:44.91Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "appsettings.Development.json",
+              "DocumentMoniker": "C:\\Users\\huy\\Documents\\Huy_Final_0843\\Huy_Final_0843\\appsettings.Development.json",
+              "RelativeDocumentMoniker": "Huy_Final_0843\\appsettings.Development.json",
+              "ToolTip": "C:\\Users\\huy\\Documents\\Huy_Final_0843\\Huy_Final_0843\\appsettings.Development.json",
+              "RelativeToolTip": "Huy_Final_0843\\appsettings.Development.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-03-30T14:52:24.174Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "Huy_Final_0843.csproj",
+              "DocumentMoniker": "C:\\Users\\huy\\Documents\\Huy_Final_0843\\Huy_Final_0843\\Huy_Final_0843.csproj",
+              "RelativeDocumentMoniker": "Huy_Final_0843\\Huy_Final_0843.csproj",
+              "ToolTip": "C:\\Users\\huy\\Documents\\Huy_Final_0843\\Huy_Final_0843\\Huy_Final_0843.csproj",
+              "RelativeToolTip": "Huy_Final_0843\\Huy_Final_0843.csproj",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABcAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2026-03-30T14:39:00.011Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "_Layout.cshtml",
+              "DocumentMoniker": "C:\\Users\\huy\\Documents\\Huy_Final_0843\\Huy_Final_0843\\Views\\Shared\\_Layout.cshtml",
+              "RelativeDocumentMoniker": "Huy_Final_0843\\Views\\Shared\\_Layout.cshtml",
+              "ToolTip": "C:\\Users\\huy\\Documents\\Huy_Final_0843\\Huy_Final_0843\\Views\\Shared\\_Layout.cshtml",
+              "RelativeToolTip": "Huy_Final_0843\\Views\\Shared\\_Layout.cshtml",
+              "ViewState": "AgIAAEkAAAAAAAAAAAAAAFoAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-03-20T13:06:53.325Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "Display.cshtml",
+              "DocumentMoniker": "C:\\Users\\huy\\Documents\\Huy_Final_0843\\Huy_Final_0843\\Views\\Product\\Display.cshtml",
+              "RelativeDocumentMoniker": "Huy_Final_0843\\Views\\Product\\Display.cshtml",
+              "ToolTip": "C:\\Users\\huy\\Documents\\Huy_Final_0843\\Huy_Final_0843\\Views\\Product\\Display.cshtml",
+              "RelativeToolTip": "Huy_Final_0843\\Views\\Product\\Display.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAAmAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-03-20T13:06:53.375Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "C:\\Users\\huy\\Documents\\Huy_Final_0843\\Huy_Final_0843\\Views\\Product\\Index.cshtml",
+              "RelativeDocumentMoniker": "Huy_Final_0843\\Views\\Product\\Index.cshtml",
+              "ToolTip": "C:\\Users\\huy\\Documents\\Huy_Final_0843\\Huy_Final_0843\\Views\\Product\\Index.cshtml",
+              "RelativeToolTip": "Huy_Final_0843\\Views\\Product\\Index.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABsAAABBAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-03-20T13:06:53.378Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "ProductController.cs",
+              "DocumentMoniker": "C:\\Users\\huy\\Documents\\Huy_Final_0843\\Huy_Final_0843\\Controllers\\ProductController.cs",
+              "RelativeDocumentMoniker": "Huy_Final_0843\\Controllers\\ProductController.cs",
+              "ToolTip": "C:\\Users\\huy\\Documents\\Huy_Final_0843\\Huy_Final_0843\\Controllers\\ProductController.cs",
+              "RelativeToolTip": "Huy_Final_0843\\Controllers\\ProductController.cs",
+              "ViewState": "AQIAAHsAAAAAAAAAAAAUwKAAAAABAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-20T13:06:53.379Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\huy\\Documents\\Huy_Final_0843\\Huy_Final_0843\\Program.cs",
+              "RelativeDocumentMoniker": "Huy_Final_0843\\Program.cs",
+              "ToolTip": "C:\\Users\\huy\\Documents\\Huy_Final_0843\\Huy_Final_0843\\Program.cs",
+              "RelativeToolTip": "Huy_Final_0843\\Program.cs",
+              "ViewState": "AgIAABgAAAAAAAAAAAAAABEAAAAzAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-20T13:06:53.39Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "ApplicationDbContext.cs",
+              "DocumentMoniker": "C:\\Users\\huy\\Documents\\Huy_Final_0843\\Huy_Final_0843\\Models\\ApplicationDbContext.cs",
+              "RelativeDocumentMoniker": "Huy_Final_0843\\Models\\ApplicationDbContext.cs",
+              "ToolTip": "C:\\Users\\huy\\Documents\\Huy_Final_0843\\Huy_Final_0843\\Models\\ApplicationDbContext.cs",
+              "RelativeToolTip": "Huy_Final_0843\\Models\\ApplicationDbContext.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAA8AAAABAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-20T13:06:53.381Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "C:\\Users\\huy\\Documents\\Huy_Final_0843\\Huy_Final_0843\\appsettings.json",
+              "RelativeDocumentMoniker": "Huy_Final_0843\\appsettings.json",
+              "ToolTip": "C:\\Users\\huy\\Documents\\Huy_Final_0843\\Huy_Final_0843\\appsettings.json",
+              "RelativeToolTip": "Huy_Final_0843\\appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-03-20T13:06:53.391Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "Add.cshtml",
+              "DocumentMoniker": "C:\\Users\\huy\\Documents\\Huy_Final_0843\\Huy_Final_0843\\Views\\Product\\Add.cshtml",
+              "RelativeDocumentMoniker": "Huy_Final_0843\\Views\\Product\\Add.cshtml",
+              "ToolTip": "C:\\Users\\huy\\Documents\\Huy_Final_0843\\Huy_Final_0843\\Views\\Product\\Add.cshtml",
+              "RelativeToolTip": "Huy_Final_0843\\Views\\Product\\Add.cshtml",
+              "ViewState": "AQIAAAIAAAAAAAAAAAAkwBgAAAAtAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-03-20T13:06:53.376Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "Update.cshtml",
+              "DocumentMoniker": "C:\\Users\\huy\\Documents\\Huy_Final_0843\\Huy_Final_0843\\Views\\Product\\Update.cshtml",
+              "RelativeDocumentMoniker": "Huy_Final_0843\\Views\\Product\\Update.cshtml",
+              "ToolTip": "C:\\Users\\huy\\Documents\\Huy_Final_0843\\Huy_Final_0843\\Views\\Product\\Update.cshtml",
+              "RelativeToolTip": "Huy_Final_0843\\Views\\Product\\Update.cshtml",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAACoAAAAkAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-03-20T13:06:53.382Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "EFCategoryRepository.cs",
+              "DocumentMoniker": "C:\\Users\\huy\\Documents\\Huy_Final_0843\\Huy_Final_0843\\Repositories\\EFCategoryRepository.cs",
+              "RelativeDocumentMoniker": "Huy_Final_0843\\Repositories\\EFCategoryRepository.cs",
+              "ToolTip": "C:\\Users\\huy\\Documents\\Huy_Final_0843\\Huy_Final_0843\\Repositories\\EFCategoryRepository.cs",
+              "RelativeToolTip": "Huy_Final_0843\\Repositories\\EFCategoryRepository.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAACsAAAABAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-20T13:06:53.384Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "EFProductRepository.cs",
+              "DocumentMoniker": "C:\\Users\\huy\\Documents\\Huy_Final_0843\\Huy_Final_0843\\Repositories\\EFProductRepository.cs",
+              "RelativeDocumentMoniker": "Huy_Final_0843\\Repositories\\EFProductRepository.cs",
+              "ToolTip": "C:\\Users\\huy\\Documents\\Huy_Final_0843\\Huy_Final_0843\\Repositories\\EFProductRepository.cs",
+              "RelativeToolTip": "Huy_Final_0843\\Repositories\\EFProductRepository.cs",
+              "ViewState": "AQIAABcAAAAAAAAAAAAwwC8AAAABAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-20T13:06:53.385Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "ICategoryRepository.cs",
+              "DocumentMoniker": "C:\\Users\\huy\\Documents\\Huy_Final_0843\\Huy_Final_0843\\Repositories\\ICategoryRepository.cs",
+              "RelativeDocumentMoniker": "Huy_Final_0843\\Repositories\\ICategoryRepository.cs",
+              "ToolTip": "C:\\Users\\huy\\Documents\\Huy_Final_0843\\Huy_Final_0843\\Repositories\\ICategoryRepository.cs",
+              "RelativeToolTip": "Huy_Final_0843\\Repositories\\ICategoryRepository.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAsAAAAFAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-20T13:06:53.387Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
+              "Title": "IProductRepository.cs",
+              "DocumentMoniker": "C:\\Users\\huy\\Documents\\Huy_Final_0843\\Huy_Final_0843\\Repositories\\IProductRepository.cs",
+              "RelativeDocumentMoniker": "Huy_Final_0843\\Repositories\\IProductRepository.cs",
+              "ToolTip": "C:\\Users\\huy\\Documents\\Huy_Final_0843\\Huy_Final_0843\\Repositories\\IProductRepository.cs",
+              "RelativeToolTip": "Huy_Final_0843\\Repositories\\IProductRepository.cs",
+              "ViewState": "AQIAAAMAAAAAAAAAAAAAAAsAAAAFAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-20T13:06:53.388Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 21,
+              "Title": "20260314060547_InitialCreate.cs",
+              "DocumentMoniker": "C:\\Users\\huy\\Documents\\Huy_Final_0843\\Huy_Final_0843\\Migrations\\20260314060547_InitialCreate.cs",
+              "RelativeDocumentMoniker": "Huy_Final_0843\\Migrations\\20260314060547_InitialCreate.cs",
+              "ToolTip": "C:\\Users\\huy\\Documents\\Huy_Final_0843\\Huy_Final_0843\\Migrations\\20260314060547_InitialCreate.cs",
+              "RelativeToolTip": "Huy_Final_0843\\Migrations\\20260314060547_InitialCreate.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-20T13:06:53.409Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 19,
+              "Title": "ProductImage.cs",
+              "DocumentMoniker": "C:\\Users\\huy\\Documents\\Huy_Final_0843\\Huy_Final_0843\\Models\\ProductImage.cs",
+              "RelativeDocumentMoniker": "Huy_Final_0843\\Models\\ProductImage.cs",
+              "ToolTip": "C:\\Users\\huy\\Documents\\Huy_Final_0843\\Huy_Final_0843\\Models\\ProductImage.cs",
+              "RelativeToolTip": "Huy_Final_0843\\Models\\ProductImage.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAoAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-20T13:06:53.411Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 18,
+              "Title": "Category.cs",
+              "DocumentMoniker": "C:\\Users\\huy\\Documents\\Huy_Final_0843\\Huy_Final_0843\\Models\\Category.cs",
+              "RelativeDocumentMoniker": "Huy_Final_0843\\Models\\Category.cs",
+              "ToolTip": "C:\\Users\\huy\\Documents\\Huy_Final_0843\\Huy_Final_0843\\Models\\Category.cs",
+              "RelativeToolTip": "Huy_Final_0843\\Models\\Category.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAwAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-20T13:06:53.413Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 20,
+              "Title": "Product.cs",
+              "DocumentMoniker": "C:\\Users\\huy\\Documents\\Huy_Final_0843\\Huy_Final_0843\\Models\\Product.cs",
+              "RelativeDocumentMoniker": "Huy_Final_0843\\Models\\Product.cs",
+              "ToolTip": "C:\\Users\\huy\\Documents\\Huy_Final_0843\\Huy_Final_0843\\Models\\Product.cs",
+              "RelativeToolTip": "Huy_Final_0843\\Models\\Product.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABIAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-20T13:06:53.414Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

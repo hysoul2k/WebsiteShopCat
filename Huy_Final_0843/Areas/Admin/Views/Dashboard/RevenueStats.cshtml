@@ -1,0 +1,380 @@
+@model Huy_Final_0843.Models.RevenueStatsViewModel
+
+@{
+    ViewData["Title"] = "Lọc Doanh Thu Cơ Bản (Admin)";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold m-0"><i class="fas fa-filter me-2" style="color: var(--accent-color);"></i>BỘ LỌC DOANH THU & HIỆU SUẤT ĐƠN HÀNG</h3>
+
+    @if (User.IsInRole(SD.Role_Admin))
+    {
+        <form id="resetRevenueForm" asp-area="Admin" asp-controller="Dashboard" asp-action="ClearRevenue" method="post" class="m-0">
+            <button type="button" class="btn btn-warning-red px-4 fw-bold shadow" onclick="confirmClearData()">
+                <i class="fas fa-eraser me-2"></i>RESET DOANH THU
+            </button>
+        </form>
+    }
+</div>
+
+<style>
+    .btn-rosy {
+        background-color: #bc8f8f !important;
+        color: white !important;
+        border: none;
+        transition: all 0.3s ease;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+    }
+    .btn-rosy:hover {
+        background-color: #a67b7b !important;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(188, 143, 143, 0.4);
+    }
+    /* NÚT LỌC ĐỎ CHIẾN (USER REQUEST) */
+    .btn-action-red {
+        background-color: #dc3545 !important;
+        color: white !important;
+        border: none;
+        font-weight: bold;
+        z-index: 1000;
+        position: relative;
+        transition: all 0.3s ease;
+    }
+    .btn-action-red:hover {
+        background-color: #c82333 !important;
+        box-shadow: 0 0 15px rgba(220, 53, 69, 0.6) !important;
+        transform: scale(1.02);
+    }
+    .btn-warning-red {
+        background-color: transparent !important;
+        color: #ff4d4d !important;
+        border: 2px solid #ff4d4d !important;
+        z-index: 1000;
+        position: relative;
+    }
+    .btn-warning-red:hover {
+        background-color: #ff4d4d !important;
+        color: white !important;
+    }
+</style>
+
+<!-- Khối Điều Khiển (Filter Block) -->
+<div class="glass-card p-4 mb-4 border-secondary text-white bg-dark shadow">
+    <form method="get" asp-area="Admin" asp-controller="Dashboard" asp-action="RevenueStats" class="row gx-3 align-items-end">
+        <div class="col-md-4">
+            <label class="form-label text-uppercase small fw-bold text-secondary mb-2">Chọn Tháng</label>
+            <select name="month" class="form-select bg-dark text-white border-secondary">
+                @for (int i = 1; i <= 12; i++)
+                {
+                    if (Model.SelectedMonth == i)
+                    {
+                        <option value="@i" selected>Tháng @i</option>
+                    }
+                    else
+                    {
+                        <option value="@i">Tháng @i</option>
+                    }
+                }
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label text-uppercase small fw-bold text-secondary mb-2">Chọn Mốc Năm</label>
+            <select name="year" class="form-select bg-dark text-white border-secondary">
+                @foreach (var yr in Model.AvailableYears)
+                {
+                    if (Model.SelectedYear == yr)
+                    {
+                        <option value="@yr" selected>Năm @yr</option>
+                    }
+                    else
+                    {
+                        <option value="@yr">Năm @yr</option>
+                    }
+                }
+            </select>
+        </div>
+        <div class="col-md-4">
+            <button type="submit" class="btn btn-action-red w-100 py-2">
+                <i class="fas fa-rocket me-2"></i>TRÍCH XUẤT DỮ LIỆU
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Dải Thẻ Kết Quả -->
+<div class="row g-4 mb-5">
+    <!-- Thẻ Doanh Thu -->
+    <div class="col-md-4">
+        <div class="card glass-card h-100 p-4 border-secondary bg-dark text-center shadow">
+            <div class="mx-auto bg-warning bg-opacity-25 rounded-circle d-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                <i class="fas fa-coins fa-2x text-warning"></i>
+            </div>
+            <h6 class="text-uppercase text-secondary fw-bold">Tổng Doanh Thu</h6>
+            <h2 class="display-6 fw-bold mt-2" style="color: var(--accent-color);">
+                @Model.TotalRevenue.ToString("N0") <span class="fs-6 text-muted">VNĐ</span>
+            </h2>
+        </div>
+    </div>
+    
+    <!-- Thẻ Số Đơn -->
+    <div class="col-md-4">
+        <div class="card glass-card h-100 p-4 border-secondary bg-dark text-center shadow">
+            <div class="mx-auto bg-info bg-opacity-25 rounded-circle d-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                <i class="fas fa-box-open fa-2x text-info"></i>
+            </div>
+            <h6 class="text-uppercase text-secondary fw-bold">Khối Lượng Đơn Đã Giao</h6>
+            <h2 class="display-6 fw-bold mt-2 text-white">
+                @Model.TotalOrders <span class="fs-6 text-muted">Đơn hàng</span>
+            </h2>
+        </div>
+    </div>
+
+    <!-- Thẻ Trung Bình Mỗi Đơn -->
+    <div class="col-md-4">
+        <div class="card glass-card h-100 p-4 border-secondary bg-dark text-center shadow">
+            <div class="mx-auto bg-success bg-opacity-25 rounded-circle d-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                <i class="fas fa-percentage fa-2x text-success"></i>
+            </div>
+            <h6 class="text-uppercase text-secondary fw-bold">Giá Trị Doanh Thu Trung Bình Của Một Đơn</h6>
+            <h2 class="display-6 fw-bold mt-2 text-white">
+                @Model.AverageOrderValue.ToString("N0") <span class="fs-6 text-muted">VNĐ / Đơn</span>
+            </h2>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- PHẦN 2: TAB THỐNG KÊ CHI TIẾT DỰA VÀO NHÓM -->
+<!-- ========================================== -->
+<div class="glass-card mb-5 p-4 border-secondary shadow bg-dark">
+    <h4 class="fw-bold mb-4 text-white"><i class="fas fa-layer-group me-2" style="color: var(--accent-color);"></i>TRA CỨU DOANH THU THEO NHÓM CATEGORY</h4>
+    
+    <!-- Bộ thẻ Tabs -->
+    <ul class="nav nav-tabs border-secondary mb-4" id="revenueTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active fw-bold px-4" id="cat-tab" data-bs-toggle="tab" data-bs-target="#cat-panel" type="button" role="tab" style="color: var(--accent-color);">BÁN MÈO</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link fw-bold px-4 text-white" id="food-tab" data-bs-toggle="tab" data-bs-target="#food-panel" type="button" role="tab">THỨC ĂN</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link fw-bold px-4 text-white" id="accessory-tab" data-bs-toggle="tab" data-bs-target="#accessory-panel" type="button" role="tab">PHỤ KIỆN / DỤNG CỤ</button>
+        </li>
+    </ul>
+
+    <!-- Nội dung Tabs -->
+    <div class="tab-content" id="revenueTabsContent">
+        
+        <!-- Tab 1: Mèo -->
+        <div class="tab-pane fade show active" id="cat-panel" role="tabpanel">
+            <div class="alert bg-success bg-opacity-25 border-success text-white mb-4 d-flex align-items-center">
+                <i class="fas fa-cat fa-2x me-3 text-success"></i>
+                <div>
+                    <h6 class="mb-1 text-secondary text-uppercase fw-bold">TỔNG DOANH THU NHÓM MÈO LÀ:</h6>
+                    <h4 class="mb-0 fw-bold" style="color: var(--accent-color);">@Model.CatGroup.TotalRevenue.ToString("N0") VNĐ</h4>
+                </div>
+            </div>
+            
+            <div class="table-responsive">
+                <table class="table table-dark table-hover table-bordered border-secondary m-0 align-middle datatable-style">
+                    <thead class="bg-secondary bg-opacity-25 text-uppercase small text-secondary text-center">
+                        <tr>
+                            <th>Mã Đơn</th>
+                            <th>Ngày Đặt</th>
+                            <th>Hình Ảnh</th>
+                            <th>Tên Thú Cưng</th>
+                            <th>SL</th>
+                            <th class="text-end">Doanh Thu Của Món Này</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-center">
+                        @foreach(var item in Model.CatGroup.Orders) {
+                            <tr>
+                                <td class="text-warning fw-bold">#@item.OrderId</td>
+                                <td>@item.OrderDate.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(item.ImageUrl)) {
+                                        <img src="@item.ImageUrl" style="width: 48px; border: 1px solid rgba(255,255,255,0.1);" class="rounded product-image-square shadow-sm" />
+                                    }
+                                </td>
+                                <td class="text-white fw-bold">@item.ProductName <br><span class="badge bg-secondary">@item.CategoryName</span></td>
+                                <td>@item.Quantity</td>
+                                <td class="text-end fw-bold" style="color: var(--accent-color);">@item.Total.ToString("N0") đ</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Tab 2: Thức Ăn -->
+        <div class="tab-pane fade" id="food-panel" role="tabpanel">
+            <div class="alert bg-warning bg-opacity-25 border-warning text-white mb-4 d-flex align-items-center">
+                <i class="fas fa-bone fa-2x me-3 text-warning"></i>
+                <div>
+                    <h6 class="mb-1 text-secondary text-uppercase fw-bold">TỔNG DOANH THU NHÓM THỨC ĂN LÀ:</h6>
+                    <h4 class="mb-0 fw-bold text-warning">@Model.FoodGroup.TotalRevenue.ToString("N0") VNĐ</h4>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-dark table-hover table-bordered border-secondary m-0 align-middle datatable-style">
+                    <thead class="bg-secondary bg-opacity-25 text-uppercase small text-secondary text-center">
+                        <tr>
+                            <th>Mã Đơn</th>
+                            <th>Ngày Đặt</th>
+                            <th>Hình Ảnh</th>
+                            <th>Tên Sản Phẩm</th>
+                            <th>SL</th>
+                            <th class="text-end">Doanh Thu Của Món Này</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-center">
+                        @foreach(var item in Model.FoodGroup.Orders) {
+                            <tr>
+                                <td class="text-warning fw-bold">#@item.OrderId</td>
+                                <td>@item.OrderDate.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(item.ImageUrl)) {
+                                        <img src="@item.ImageUrl" style="width: 48px; border: 1px solid rgba(255,255,255,0.1);" class="rounded product-image-square shadow-sm" />
+                                    }
+                                </td>
+                                <td class="text-white fw-bold">@item.ProductName <br><span class="badge bg-secondary">@item.CategoryName</span></td>
+                                <td>@item.Quantity</td>
+                                <td class="text-end fw-bold text-warning">@item.Total.ToString("N0") đ</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Tab 3: Dụng Cụ -->
+        <div class="tab-pane fade" id="accessory-panel" role="tabpanel">
+            <div class="alert bg-info bg-opacity-25 border-info text-white mb-4 d-flex align-items-center">
+                <i class="fas fa-box fa-2x me-3 text-info"></i>
+                <div>
+                    <h6 class="mb-1 text-secondary text-uppercase fw-bold">TỔNG DOANH THU NHÓM DỤNG CỤ:</h6>
+                    <h4 class="mb-0 fw-bold text-info">@Model.AccessoryGroup.TotalRevenue.ToString("N0") VNĐ</h4>
+                </div>
+            </div>
+
+             <div class="table-responsive">
+                <table class="table table-dark table-hover table-bordered border-secondary m-0 align-middle datatable-style">
+                    <thead class="bg-secondary bg-opacity-25 text-uppercase small text-secondary text-center">
+                        <tr>
+                            <th>Mã Đơn</th>
+                            <th>Ngày Đặt</th>
+                            <th>Hình Ảnh</th>
+                            <th>Tên Sản Phẩm</th>
+                            <th>SL</th>
+                            <th class="text-end">Lợi Nhuận Gộp Này</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-center">
+                        @foreach(var item in Model.AccessoryGroup.Orders) {
+                            <tr>
+                                <td class="text-warning fw-bold">#@item.OrderId</td>
+                                <td>@item.OrderDate.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(item.ImageUrl)) {
+                                        <img src="@item.ImageUrl" style="width: 48px; border: 1px solid rgba(255,255,255,0.1);" class="rounded product-image-square shadow-sm" />
+                                    }
+                                </td>
+                                <td class="text-white fw-bold">@item.ProductName <br><span class="badge bg-secondary">@item.CategoryName</span></td>
+                                <td>@item.Quantity</td>
+                                <td class="text-end fw-bold text-info">@item.Total.ToString("N0") đ</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Apply DataTables cho từng bảng
+            $('.datatable-style').DataTable({
+                "language": {
+                    "search": "",
+                    "searchPlaceholder": "Tìm kiếm hóa đơn/tên hàng...",
+                    "paginate": { "previous": "Trước", "next": "Sau" },
+                    "info": "Đang xem từ _START_ tới _END_ của _TOTAL_ mục"
+                },
+                "order": [[1, "desc"]], /* Xếp ngày giảm dần */
+                "pageLength": 10
+            });
+            // Áp css tối màu cho thanh search
+            $('.dataTables_filter input').addClass('form-control bg-dark border-secondary text-white rounded-pill px-4 mb-3');
+            $('.dataTables_length select').addClass('form-select bg-dark text-white border-secondary mb-3');
+
+            // Hiệu ứng đổi màu text Active cho tab
+            $('button[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
+                // Xoá màu neon của các tab cũ
+                $('button[data-bs-toggle="tab"]').css("color", "").removeClass("text-white");
+                
+                // Mặc định các tab in-active sẽ có chữ trắng
+                $('button[data-bs-toggle="tab"]:not(.active)').addClass("text-white");
+
+                // Tab Đang chọn được bôi màu Neon
+                $(e.target).css("color", "var(--accent-color)").removeClass("text-white");
+            });
+
+            // --- HIỂN THỊ TOAST NẾU CÓ THÔNG BÁO TỪ SERVER ---
+            @if (TempData["Success"] != null)
+            {
+                <text>
+                const Toast = Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true
+                });
+                Toast.fire({
+                    icon: 'success',
+                    title: '<span style="color: #bc8f8f; font-weight: bold;">Hệ thống</span>',
+                    text: '@Html.Raw(TempData["Success"])'
+                });
+                </text>
+            }
+            @if (TempData["Error"] != null)
+            {
+                <text>
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi',
+                    text: '@Html.Raw(TempData["Error"])'
+                });
+                </text>
+            }
+        });
+
+        // --- HÀM XÁC NHẬN XOÁ SẠCH DOANH THU (JS Dành riêng cho RevenueStats) ---
+        function confirmClearData() {
+            Swal.fire({
+                title: 'BẠN CÓ CHẮC KHÔNG?',
+                text: "Toàn bộ lịch sử bán hàng và doanh thu sẽ biến mất vĩnh viễn khỏi Showcase!",
+                icon: 'error',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#333',
+                confirmButtonText: 'Có, Xoá sạch ngay!',
+                cancelButtonText: 'Hủy',
+                background: '#151515',
+                color: '#fff'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const form = document.getElementById('resetRevenueForm');
+                    if (form) form.submit();
+                    else Swal.fire('Lỗi', 'Không tìm thấy Form xử lý!', 'error');
+                }
+            })
+        }
+    </script>
+}

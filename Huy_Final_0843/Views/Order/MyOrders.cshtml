@@ -1,0 +1,93 @@
+@model IEnumerable<Huy_Final_0843.Models.Order>
+@{
+    ViewData["Title"] = "Đơn hàng của tôi";
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold mb-0" style="color: var(--accent-color);">
+            <i class="fas fa-box-open me-2"></i>ĐƠN HÀNG CỦA TÔI
+        </h3>
+        <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary btn-sm">
+            <i class="fas fa-arrow-left me-1"></i>Tiếp tục mua sắm
+        </a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="text-center py-5 glass-card">
+            <i class="fas fa-shopping-basket fa-4x text-secondary mb-3 opacity-50"></i>
+            <h4 class="text-secondary">Bạn chưa có đơn hàng nào.</h4>
+            <p class="text-secondary">Hãy khám phá bộ sưu tập Meow Garden ngay nhé!</p>
+            <a asp-controller="Home" asp-action="Index" class="btn btn-rosy px-4 mt-3">Đến Cửa Hàng</a>
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+            @foreach (var order in Model)
+            {
+                <div class="col-12">
+                    <div class="card shadow-sm border-0 mb-3">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col-md-2 text-center text-md-start mb-3 mb-md-0">
+                                    <div class="small text-secondary text-uppercase fw-bold">Mã Đơn</div>
+                                    <div class="fs-5 fw-bold" style="color: var(--accent-color);">#@order.Id</div>
+                                </div>
+                                <div class="col-md-3 mb-3 mb-md-0">
+                                    <div class="small text-secondary text-uppercase fw-bold">Ngày Đặt</div>
+                                    <div class="fw-bold">@order.OrderDate.ToString("dd/MM/yyyy HH:mm")</div>
+                                </div>
+                                <div class="col-md-2 mb-3 mb-md-0">
+                                    <div class="small text-secondary text-uppercase fw-bold">Tổng Tiền</div>
+                                    <div class="text-danger fw-bold">@order.TotalPrice.ToString("N0") <span class="small">đ</span></div>
+                                </div>
+                                <div class="col-md-3 mb-3 mb-md-0 text-center">
+                                    <div class="small text-secondary text-uppercase fw-bold mb-1">Trạng Thái</div>
+                                    @switch (order.Status)
+                                    {
+                                        case OrderStatus.Pending:
+                                            <span class="badge bg-warning text-dark px-3 py-2 rounded-pill"><i class="fas fa-clock me-1"></i>Chờ xử lý</span>
+                                            break;
+                                        case OrderStatus.Shipping:
+                                            <span class="badge bg-info text-dark px-3 py-2 rounded-pill"><i class="fas fa-shipping-fast me-1"></i>Đang giao</span>
+                                            break;
+                                        case OrderStatus.Completed:
+                                            <span class="badge bg-success px-3 py-2 rounded-pill"><i class="fas fa-check-circle me-1"></i>Hoàn thành</span>
+                                            break;
+                                        case OrderStatus.Cancelled:
+                                            <span class="badge bg-danger px-3 py-2 rounded-pill"><i class="fas fa-times-circle me-1"></i>Đã hủy</span>
+                                            break;
+                                    }
+                                </div>
+                                <div class="col-md-2 text-center">
+                                    <a asp-action="Details" asp-route-id="@order.Id" class="btn btn-outline-primary btn-sm w-100 py-2 fw-bold">
+                                        XEM LỘ TRÌNH <i class="fas fa-arrow-right ms-1"></i>
+                                    </a>
+                                </div>
+                            </div>
+
+                            @if (order.OrderDetails != null && order.OrderDetails.Any())
+                            {
+                                <hr class="border-secondary opacity-25">
+                                <div class="d-flex overflow-auto pb-2 gap-3" style="scrollbar-width: thin;">
+                                    @foreach (var item in order.OrderDetails)
+                                    {
+                                        <div class="d-flex align-items-center" style="min-width: 200px;">
+                                            <img src="@item.Product?.ImageUrl" class="rounded border border-secondary p-1" style="width: 50px; height: 50px; object-fit: cover;">
+                                            <div class="ms-2">
+                                                <div class="small fw-bold text-truncate" style="max-width: 130px;">@item.Product?.Name</div>
+                                                <div class="small text-muted">x @item.Quantity</div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

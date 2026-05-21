@@ -1,0 +1,89 @@
+@model Huy_Final_0843.Models.RevenueReportViewModel
+
+@{
+    ViewData["Title"] = "Báo Cáo Doanh Thu (Admin Only)";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold m-0"><i class="fas fa-chart-line me-2" style="color: var(--accent-color);"></i>THỐNG KÊ DOANH THU & HIỆU SUẤT TỔNG</h3>
+</div>
+
+<div class="row g-4 mb-5">
+    <div class="col-md-6">
+        <div class="card glass-card h-100 p-4 border-secondary text-white bg-dark shadow">
+            <h5 class="fw-bold mb-3 text-secondary text-uppercase"><i class="fas fa-coins me-2 text-warning"></i>Tổng Doanh Thu Hợp Lệ</h5>
+            <h1 class="display-5 fw-bold mt-auto pb-2" style="color: var(--accent-color);">
+                @Model.TotalRevenue.ToString("N0") <span class="fs-4">VNĐ</span>
+            </h1>
+            <p class="mb-0 text-muted small fst-italic">* Chú thích: (Chỉ tính các dòng tiền đã giao dịch thành công / đã nhận hàng)</p>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card glass-card h-100 p-4 border-secondary text-white bg-dark shadow">
+            <h5 class="fw-bold mb-3 text-secondary text-uppercase"><i class="fas fa-calendar-check me-2 text-info"></i>Số Đơn Của Tháng @DateTime.Now.Month</h5>
+            <h1 class="display-5 fw-bold mt-auto pb-2 text-white">
+                @Model.OrdersThisMonth <span class="fs-4" style="color: var(--accent-color);">Giao Dịch Đã Chốt</span>
+            </h1>
+            <p class="mb-0 text-muted small fst-italic">* Lọc dựa trên lượng thao tác Order phát sinh theo khung thời gian tháng hiện tại.</p>
+        </div>
+    </div>
+</div>
+
+<div class="glass-card p-4">
+    <h5 class="fw-bold mb-4 text-white"><i class="fas fa-trophy me-2 text-warning"></i>TOP 5 THÚ CƯNG / VẬT TƯ BÁN CHẠY NHẤT</h5>
+
+    <div class="table-responsive">
+        <table class="table table-dark table-hover table-bordered border-secondary m-0 text-center align-middle shadow">
+            <thead class="bg-secondary bg-opacity-25">
+                <tr class="text-uppercase small text-secondary">
+                    <th style="width: 5%">Hạng</th>
+                    <th style="width: 10%">Hình Ảnh</th>
+                    <th class="text-start">Tên Sản Phẩm</th>
+                    <th>Số Lượng Bán Ra</th>
+                    <th class="text-end">Lợi Nhuận Gộp (VNĐ)</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.TopSellingProducts != null && Model.TopSellingProducts.Any())
+                {
+                    int rank = 1;
+                    foreach (var item in Model.TopSellingProducts)
+                    {
+                        <tr>
+                            <td class="fw-bold fs-5 text-warning">#@rank</td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(item.ProductImage))
+                                {
+                                    <img src="@item.ProductImage" class="rounded shadow-sm" style="width: 60px; height: 60px; object-fit: cover; border: 1px solid #3d444d;" />
+                                }
+                                else
+                                {
+                                    <span class="text-muted"><i class="fas fa-box"></i> N/A</span>
+                                }
+                            </td>
+                            <td class="text-start fw-bold text-white fs-5">@item.ProductName</td>
+                            <td>
+                                <span class="badge rounded-pill fs-6 px-3 py-2" style="background-color: var(--accent-color); color: #000;">
+                                    @item.TotalSold
+                                </span>
+                            </td>
+                            <td class="text-end fw-bold fs-5" style="color: var(--accent-color);">
+                                @item.TotalRevenueGenerated.ToString("N0")
+                            </td>
+                        </tr>
+                        rank++;
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="5" class="py-5 text-muted fst-italic">
+                            <i class="fas fa-box-open fa-2x mb-3 d-block alpha-50"></i>
+                            Chưa có dữ liệu lịch sử mua hàng, hệ thống chưa đo lường được...
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

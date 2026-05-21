@@ -1,0 +1,335 @@
+/* =====================================================
+   Meow Garden — Chat Widget CSS
+   File: wwwroot/css/meow-chat-widget.css
+   ===================================================== */
+
+:root {
+    --meow-gold: #C8A96E;
+    --meow-green: #4A6741;
+    --meow-cream: #FBF7F0;
+    --meow-orange: #E07B39;
+    --meow-teal: #3A8C7E;
+    --meow-shadow: 0 8px 40px rgba(0,0,0,0.18);
+    --meow-radius: 20px;
+}
+
+/* Floating button */
+#meow-chat-toggle {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    width: 62px;
+    height: 62px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--meow-gold), #a8813e);
+    border: none;
+    cursor: pointer;
+    font-size: 28px;
+    box-shadow: 0 4px 20px rgba(200,169,110,0.5);
+    z-index: 9999;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+#meow-chat-toggle:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 28px rgba(200,169,110,0.65);
+}
+#meow-chat-toggle.open { transform: rotate(15deg) scale(1.05); }
+
+/* Notification badge */
+#meow-chat-badge {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    width: 18px;
+    height: 18px;
+    background: #e74c3c;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    display: none;
+}
+#meow-chat-badge.show { display: block; }
+
+/* Popup container */
+#meow-chat-popup {
+    position: fixed;
+    bottom: 104px;
+    right: 28px;
+    width: 400px;
+    height: 540px;
+    background: var(--meow-cream);
+    border-radius: var(--meow-radius);
+    box-shadow: var(--meow-shadow);
+    z-index: 9998;
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    animation: meowSlideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    font-family: 'DM Sans', sans-serif;
+}
+#meow-chat-popup.show { display: flex; }
+
+@keyframes meowSlideUp {
+    from { opacity: 0; transform: translateY(20px) scale(0.95); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Header */
+.meow-header {
+    padding: 16px 20px 0;
+    background: var(--meow-cream);
+    border-bottom: 1px solid rgba(0,0,0,0.07);
+}
+.meow-header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+.meow-brand {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--meow-green);
+    letter-spacing: 0.5px;
+}
+.meow-close {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: #999;
+    padding: 0 4px;
+    line-height: 1;
+    transition: color 0.2s;
+}
+.meow-close:hover { color: #333; }
+
+/* Mode tabs */
+.meow-tabs {
+    display: flex;
+    gap: 8px;
+    padding-bottom: 14px;
+}
+.meow-tab {
+    flex: 1;
+    padding: 9px 12px;
+    border-radius: 12px;
+    border: 2px solid transparent;
+    background: #f0ece4;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: #888;
+    transition: all 0.2s ease;
+    text-align: center;
+}
+.meow-tab:hover { background: #e8e2d6; color: #555; }
+.meow-tab.active-shop {
+    background: linear-gradient(135deg, #f5e6c8, #ead4a0);
+    border-color: var(--meow-gold);
+    color: #7a5c1e;
+    box-shadow: 0 2px 10px rgba(200,169,110,0.3);
+}
+.meow-tab.active-health {
+    background: linear-gradient(135deg, #d4ede9, #a8d5cd);
+    border-color: var(--meow-teal);
+    color: #1e5a50;
+    box-shadow: 0 2px 10px rgba(58,140,126,0.25);
+}
+
+/* Bot info bar */
+.meow-bot-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 20px;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+}
+.meow-bot-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+.meow-bot-avatar.shop { background: linear-gradient(135deg, #f5e6c8, #e8c97e); }
+.meow-bot-avatar.health { background: linear-gradient(135deg, #d4ede9, #7ccfc3); }
+.meow-bot-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: #333;
+}
+.meow-bot-status {
+    font-size: 11px;
+    color: #888;
+    font-weight: 500;
+}
+.meow-online-dot {
+    width: 8px; height: 8px;
+    background: #27ae60;
+    border-radius: 50%;
+    margin-left: auto;
+    box-shadow: 0 0 6px #27ae60;
+    flex-shrink: 0;
+}
+
+/* Messages area */
+.meow-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    scroll-behavior: smooth;
+}
+.meow-messages::-webkit-scrollbar { width: 4px; }
+.meow-messages::-webkit-scrollbar-track { background: transparent; }
+.meow-messages::-webkit-scrollbar-thumb { background: #ddd; border-radius: 4px; }
+
+/* Message bubbles */
+.meow-msg { display: flex; align-items: flex-end; gap: 8px; }
+.meow-msg.user { flex-direction: row-reverse; }
+.meow-bubble {
+    max-width: 78%;
+    padding: 11px 15px;
+    border-radius: 18px;
+    font-size: 13.5px;
+    line-height: 1.55;
+    font-weight: 500;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+.meow-msg.user .meow-bubble {
+    background: var(--meow-green);
+    color: #fff;
+    border-radius: 18px 18px 4px 18px;
+    box-shadow: 0 2px 10px rgba(74,103,65,0.3);
+}
+.meow-msg.bot .meow-bubble {
+    background: #fff;
+    color: #333;
+    border-radius: 18px 18px 18px 4px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+}
+
+/* Typing indicator */
+.meow-typing .meow-bubble {
+    padding: 14px 18px;
+}
+.meow-dots {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+.meow-dots span {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: #bbb;
+    animation: meowBounce 1.2s ease-in-out infinite;
+}
+.meow-dots span:nth-child(2) { animation-delay: 0.2s; }
+.meow-dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes meowBounce {
+    0%, 80%, 100% { transform: translateY(0); opacity: 0.5; }
+    40%            { transform: translateY(-6px); opacity: 1; }
+}
+
+/* Quick replies */
+.meow-quick {
+    padding: 10px 16px 6px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    border-top: 1px solid rgba(0,0,0,0.06);
+}
+.meow-quick-btn {
+    padding: 6px 12px;
+    border-radius: 20px;
+    border: 1.5px solid #ddd;
+    background: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    white-space: nowrap;
+}
+.meow-quick-btn:hover {
+    border-color: var(--meow-gold);
+    color: #7a5c1e;
+    background: #fdf8ef;
+    transform: translateY(-1px);
+}
+
+/* Input area */
+.meow-input-area {
+    padding: 10px 14px 14px;
+    display: flex;
+    gap: 8px;
+    align-items: flex-end;
+    background: var(--meow-cream);
+}
+#meow-input {
+    flex: 1;
+    border: 2px solid #e8e2d6;
+    border-radius: 14px;
+    padding: 10px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13.5px;
+    font-weight: 500;
+    color: #333;
+    resize: none;
+    background: #fff;
+    transition: border-color 0.2s;
+    line-height: 1.4;
+    max-height: 100px;
+    overflow-y: auto;
+}
+#meow-input:focus {
+    outline: none;
+    border-color: var(--meow-gold);
+}
+#meow-input::placeholder { color: #bbb; }
+#meow-send {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: none;
+    background: var(--meow-green);
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+    box-shadow: 0 3px 12px rgba(74,103,65,0.35);
+}
+#meow-send:hover { transform: scale(1.08); background: #3a5433; }
+#meow-send:disabled { background: #ccc; cursor: not-allowed; box-shadow: none; transform: none; }
+
+/* Mobile responsive */
+@media (max-width: 480px) {
+    #meow-chat-popup {
+        bottom: 0;
+        right: 0;
+        width: 100%;
+        height: 85vh;
+        border-radius: var(--meow-radius) var(--meow-radius) 0 0;
+    }
+    #meow-chat-toggle {
+        bottom: 20px;
+        right: 20px;
+    }
+}

@@ -1,0 +1,43 @@
+@model Huy_Final_0843.Models.ManageUserRolesViewModel
+@{
+    ViewData["Title"] = "Phân quyền";
+    Layout = "_AdminLayout";
+}
+
+<div class="mb-4">
+    <h3 class="fw-bold"><i class="fas fa-user-shield me-2"></i>Phân Quyền: @Model.FullName</h3>
+</div>
+
+<div class="glass-card shadow-lg">
+    <div class="card-body p-0">
+        <form asp-action="ManageRoles" method="post">
+            <input type="hidden" asp-for="UserId" />
+            <input type="hidden" asp-for="FullName" />
+            
+            <div class="mb-4">
+                <label class="text-secondary small text-uppercase fw-bold mb-3 d-block">Chọn danh sách quyền hạn:</label>
+                <div class="row g-3">
+                    @for (int i = 0; i < Model.Roles.Count; i++)
+                    {
+                        <div class="col-md-4">
+                            <div class="form-check p-3 border border-secondary rounded bg-black bg-opacity-25 transition-all" style="cursor: pointer;">
+                                <input type="checkbox" asp-for="@Model.Roles[i].IsSelected" class="form-check-input ms-0 me-3" style="transform: scale(1.3);" />
+                                <label class="form-check-label text-white fw-bold" asp-for="@Model.Roles[i].IsSelected">
+                                    @Model.Roles[i].RoleName
+                                </label>
+                                <input type="hidden" asp-for="@Model.Roles[i].RoleName" />
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-info px-4 fw-bold">
+                    <i class="fas fa-save me-2"></i>LƯU THAY ĐỔI
+                </button>
+                <a asp-action="Index" class="btn btn-outline-secondary px-4">Quay lại</a>
+            </div>
+        </form>
+    </div>
+</div>

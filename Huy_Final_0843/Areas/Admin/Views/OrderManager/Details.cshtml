@@ -1,0 +1,160 @@
+@model Huy_Final_0843.Models.Order
+
+@{
+    ViewData["Title"] = "Chi Tiết Đơn Hàng #" + Model.Id;
+}
+
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show bg-success text-white border-0 mb-4" role="alert">
+        <i class="fas fa-check-circle me-2"></i> @TempData["Message"]
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold m-0"><i class="fas fa-file-invoice-dollar me-2" style="color: var(--accent-color);"></i>CHI TIẾT ĐƠN HÀNG #@Model.Id</h3>
+    <a asp-action="Index" class="btn btn-outline-light px-4"><i class="fas fa-arrow-left me-2"></i>Quay Lại</a>
+</div>
+
+<div class="row g-4">
+    <!-- Thông tin khách hàng & Đơn hàng -->
+    <div class="col-md-6">
+        <div class="card glass-card h-100 p-4 border-secondary text-white bg-dark">
+            <h5 class="fw-bold mb-3" style="color: var(--accent-color);">THÔNG TIN GIAO HÀNG</h5>
+            <table class="table table-borderless table-dark m-0">
+                <tr>
+                    <td class="text-secondary" style="width: 140px;">Khách Hàng:</td>
+                    <td class="fw-bold">@Model.ApplicationUser?.FullName</td>
+                </tr>
+                <tr>
+                    <td class="text-secondary">Ngày Đặt:</td>
+                    <td>@Model.OrderDate.ToString("dd/MM/yyyy HH:mm")</td>
+                </tr>
+                <tr>
+                    <td class="text-secondary">Trạng Thái:</td>
+                    <td>
+                        @switch (Model.Status)
+                        {
+                            case OrderStatus.Pending:
+                                <span class="badge bg-warning text-dark">Chờ xử lý</span>
+                                break;
+                            case OrderStatus.Shipping:
+                                <span class="badge bg-info text-dark">Đang giao hàng</span>
+                                break;
+                            case OrderStatus.Completed:
+                                <span class="badge bg-success">Hoàn thành</span>
+                                break;
+                            case OrderStatus.Cancelled:
+                                <span class="badge bg-danger">Đã hủy</span>
+                                break;
+                        }
+                    </td>
+                </tr>
+                <tr>
+                    <td class="text-secondary">Địa Chỉ Mặc Định:</td>
+                    <td>@Model.ShippingAddress</td>
+                </tr>
+                @if (Model.Status == OrderStatus.Cancelled && !string.IsNullOrEmpty(Model.CancellationReason))
+                {
+                    <tr>
+                        <td class="text-danger fw-bold">Lý do hủy:</td>
+                        <td class="text-danger">@Model.CancellationReason</td>
+                    </tr>
+                }
+                <tr>
+                    <td class="text-secondary">Gợi ý từ người mua:</td>
+                    <td><em class="text-light">@(string.IsNullOrEmpty(Model.Notes) ? "Không có nhắc nhở thêm" : Model.Notes)</em></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card glass-card h-100 p-4 border-secondary text-white bg-dark">
+            <h5 class="fw-bold mb-3" style="color: var(--accent-color);">CẬP NHẬT TRẠNG THÁI</h5>
+            <form asp-action="UpdateOrderStatus" method="post" class="mt-4">
+                <input type="hidden" name="orderId" value="@Model.Id" />
+                
+                <div class="mb-3">
+                    <label class="form-label text-secondary">Trạng Thái Hiện Tại</label>
+                    <select name="status" id="statusSelect" class="form-select bg-dark text-white border-secondary form-select-lg">
+                        <option value="@OrderStatus.Pending" selected="@(Model.Status == OrderStatus.Pending)">Chờ xử lý - Đơn hàng mới đặt</option>
+                        <option value="@OrderStatus.Shipping" selected="@(Model.Status == OrderStatus.Shipping)">Đang giao hàng - Đã bàn giao vận chuyển</option>
+                        <option value="@OrderStatus.Completed" selected="@(Model.Status == OrderStatus.Completed)">Hoàn thành - Khách đã nhận hàng</option>
+                        <option value="@OrderStatus.Cancelled" selected="@(Model.Status == OrderStatus.Cancelled)">Hủy đơn - Từ chối phục vụ</option>
+                    </select>
+                </div>
+
+                <!-- Khu vực lý do hủy - Mặc định ẩn -->
+                <div id="cancelReasonDiv" class="mb-3" style="display: @(Model.Status == OrderStatus.Cancelled ? "block" : "none");">
+                    <label class="form-label text-danger fw-bold">Lý do hủy đơn:</label>
+                    <textarea name="cancellationReason" class="form-control bg-dark text-white border-danger" rows="3" placeholder="Nhập lý do hủy cụ thể...">@Model.CancellationReason</textarea>
+                </div>
+
+                <button type="submit" class="btn btn-success w-100 py-3 mt-2 fw-bold shadow-sm">
+                    <i class="fas fa-check-circle me-2"></i>XÁC NHẬN CẬP NHẬT (DONE)
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="mt-4 p-4 glass-card">
+    <h5 class="fw-bold mb-4" style="color: var(--accent-color);">DANH SÁCH MÓN HÀNG</h5>
+    <div class="table-responsive">
+        <table class="table table-dark table-hover border-secondary m-0">
+            <thead>
+                <tr class="text-secondary small text-uppercase">
+                    <th>Hình Ảnh</th>
+                    <th>Tên Thú Cưng / Sản Phẩm</th>
+                    <th class="text-center">Số Lượng</th>
+                    <th class="text-end">Đơn Giá</th>
+                    <th class="text-end">Thành Tiền</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.OrderDetails != null)
+                {
+                    foreach (var item in Model.OrderDetails)
+                    {
+                        var productTotal = item.Quantity * item.Price;
+                        <tr>
+                            <td style="width: 80px;">
+                                @if (item.Product != null && !string.IsNullOrEmpty(item.Product.ImageUrl))
+                                {
+                                    <img src="@item.Product.ImageUrl" style="width: 50px;" class="rounded shadow-sm product-image-square" />
+                                }
+                            </td>
+                            <td class="align-middle fw-bold">@(item.Product?.Name ?? "Sản phẩm đã bị xóa")</td>
+                            <td class="text-center align-middle">@item.Quantity</td>
+                            <td class="text-end align-middle">@item.Price.ToString("N0")</td>
+                            <td class="text-end align-middle fw-bold text-white">@productTotal.ToString("N0") đ</td>
+                        </tr>
+                    }
+                }
+            </tbody>
+            <tfoot>
+                <tr class="border-top border-secondary">
+                    <td colspan="4" class="text-end text-uppercase fw-bold pt-4 text-secondary">TỔNG CỘNG ĐƠN HÀNG:</td>
+                    <td class="text-end pt-4 fw-bold fs-5" style="color: var(--accent-color);">@Model.TotalPrice.ToString("N0") đ</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById('statusSelect').addEventListener('change', function () {
+            var cancelDiv = document.getElementById('cancelReasonDiv');
+            // Cancelled value is usually "Cancelled" if using Enum.ToString() or 3 if using int. 
+            // In ASP.NET Core, it's the name of the Enum member.
+            if (this.value === "@OrderStatus.Cancelled") {
+                cancelDiv.style.display = 'block';
+            } else {
+                cancelDiv.style.display = 'none';
+            }
+        });
+    </script>
+}

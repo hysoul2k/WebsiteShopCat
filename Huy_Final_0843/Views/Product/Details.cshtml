@@ -1,0 +1,235 @@
+@model Huy_Final_0843.Models.Product
+@{
+    ViewData["Title"] = "Chi tiết - " + Model.Name;
+
+    // Tính sao trung bình Review
+    double avgRating = 0;
+    int totalReviews = Model.Reviews != null ? Model.Reviews.Count : 0;
+    if (totalReviews > 0)
+    {
+        avgRating = Model.Reviews!.Average(r => r.Rating);
+    }
+}
+
+@section Meta {
+    <meta property="og:title" content="Rước ngay bé @Model.Name về nhà!" />
+    <meta property="og:description" content="@(Model.Description?.Length > 100 ? Model.Description.Substring(0, 100) + "..." : Model.Description)" />
+    <meta property="og:image" content="https://shopcat.vn@(Model.ImageUrl)" />
+    <meta property="og:url" content="https://shopcat.vn/Product/Details/@Model.Id" />
+    <meta property="og:type" content="product" />
+}
+
+<div class="container mt-5 mb-5">
+    
+    <!-- MESSAGES -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" style="background: var(--mist); color: var(--forest); border-color: var(--sand);">
+            <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" style="background: var(--mist); color: #d32f2f; border-color: var(--sand);">
+            <i class="fas fa-exclamation-triangle me-2"></i>@TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- NỬA TRÊN: CHI TIẾT SẢN PHẨM -->
+    <div class="card p-4 shadow-sm mb-5" style="background: #fff; border: 1px solid var(--sand); border-radius: 20px;">
+        <div class="row">
+            <!-- Cột Trái chứa Ảnh -->
+            <div class="col-md-5">
+                <img src="@Model.ImageUrl" alt="@Model.Name" class="img-fluid rounded-3 shadow-sm border product-image-square product-image-target" style="max-height: 450px; border-color: var(--sand);">
+            </div>
+
+            <!-- Cột Phải chứa Thông tin -->
+            <div class="col-md-7 d-flex flex-column">
+                <h2 class="fw-bold mb-2" style="color: var(--charcoal); font-family: 'Playfair Display', serif;">@Model.Name</h2>
+                
+                <div class="d-flex align-items-center mb-3">
+                    <span class="badge me-3 px-3 py-2 border shadow-sm" style="background: var(--mist); color: var(--charcoal); border-color: var(--sand) !important; font-size: 13px;">
+                        <i class="fas fa-tag me-2" style="color: var(--terra);"></i>@Model.Category?.Name
+                    </span>
+
+                    <!-- Hiển thị Số Sao Tổng QUan -->
+                    <div class="me-2" style="color: var(--gold); font-size: 14px;">
+                        @for (int i = 1; i <= 5; i++)
+                        {
+                            if (i <= Math.Round(avgRating)) { <i class="fas fa-star"></i> }
+                            else { <i class="far fa-star" style="color: #d4c4b0;"></i> }
+                        }
+                    </div>
+                    <span class="small fw-bold" style="color: var(--bark);">(@avgRating.ToString("0.0")/5) - @totalReviews Nhận xét</span>
+                </div>
+
+                <h1 class="mb-4" style="color: var(--terra); font-weight: 700; font-family: 'Playfair Display', serif;">@Model.Price.ToString("#,##0") <span class="fs-4" style="color: var(--bark);">VNĐ</span></h1>
+                
+                <div class="p-3 rounded-3 mb-4" style="background: var(--mist); border-left: 5px solid var(--terra);">
+                    <h6 class="fw-bold text-uppercase small mb-2" style="color: var(--bark);"><i class="fas fa-info-circle me-2"></i>Thông Tin Chi Tiết</h6>
+                    <p class="m-0" style="white-space: pre-wrap; color: var(--charcoal); line-height: 1.6;">@Model.Description</p>
+                </div>
+
+                <div class="mt-auto stock-status-container" data-product-id="@Model.Id">
+                    @if (Model.StockQuantity > 0)
+                    {
+                        <div class="d-flex align-items-center mb-3 stock-info-area">
+                            <i class="fas fa-box-open fa-2x me-3" style="color: var(--gold);"></i>
+                            <div>
+                                <small class="text-uppercase fw-bold" style="color: var(--bark);">Trạng Thái Kho</small><br />
+                                <span class="fw-bold fs-5 stock-badge" style="color: var(--forest);"><i class="fas fa-check me-1"></i>Còn @Model.StockQuantity Bé</span>
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-3 add-to-cart-form-ajax">
+                            <input type="number" name="quantity" value="1" min="1" max="@Model.StockQuantity" class="form-control fw-bold text-center stock-input" style="width: 100px; height: 50px; font-size: 1.2rem; background: #fff; color: var(--charcoal); border: 1px solid var(--sand);">
+                            
+                            <button type="button" class="btn flex-grow-1 fs-5 fw-bold shadow-sm btn-add-to-cart-ajax" data-product-id="@Model.Id" style="height: 50px; background: var(--terra); color: #fff; border-radius: 10px;">
+                                <i class="fas fa-cart-arrow-down me-2"></i>RƯỚC VỀ DINH
+                            </button>
+                        </div>
+                        
+                        <div class="alert text-center p-3 m-0 shadow-sm out-of-stock-alert d-none" style="background: #fce8e8; border: 1px solid #d32f2f;">
+                            <i class="fas fa-store-slash fa-2x mb-2" style="color: #d32f2f;"></i>
+                            <h4 class="fw-bold m-0 text-uppercase" style="color: #d32f2f;">Tạm Thời Cháy Hàng</h4>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="d-flex align-items-center mb-3 stock-info-area d-none">
+                            <i class="fas fa-box-open fa-2x me-3" style="color: var(--gold);"></i>
+                            <div>
+                                <small class="text-uppercase fw-bold" style="color: var(--bark);">Trạng Thái Kho</small><br />
+                                <span class="fw-bold fs-5 stock-badge" style="color: #d32f2f;"><i class="fas fa-ban me-1"></i>Hết Hàng</span>
+                            </div>
+                        </div>
+
+                        <form asp-controller="ShoppingCart" asp-action="AddToCart" method="post" class="d-flex gap-3 add-to-cart-form d-none">
+                            <input type="hidden" name="productId" value="@Model.Id" />
+                            <input type="number" name="quantity" value="1" min="1" max="0" class="form-control fw-bold text-center stock-input" style="width: 100px; height: 50px; font-size: 1.2rem; background: #fff; color: var(--charcoal); border: 1px solid var(--sand);">
+                            
+                            <button type="submit" class="btn flex-grow-1 fs-5 fw-bold shadow-sm" style="height: 50px; background: var(--terra); color: #fff; border-radius: 10px;">
+                                <i class="fas fa-cart-arrow-down me-2"></i>RƯỚC VỀ DINH
+                            </button>
+                        </form>
+
+                        <div class="alert text-center p-3 m-0 shadow-sm out-of-stock-alert" style="background: #fce8e8; border: 1px solid #d32f2f;">
+                            <i class="fas fa-store-slash fa-2x mb-2" style="color: #d32f2f;"></i>
+                            <h4 class="fw-bold m-0 text-uppercase" style="color: #d32f2f;">Tạm Thời Cháy Hàng</h4>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- NỬA DƯỚI: KHU VỰC ĐÁNH GIÁ VÀ REVIEW -->
+    <div class="card p-4 shadow-sm" style="background: #fff; border: 1px solid var(--sand); border-radius: 20px;">
+        <h3 class="mb-4 pb-3 border-bottom" style="color: var(--charcoal); font-family: 'Playfair Display', serif;"><i class="fas fa-comments me-2" style="color: var(--gold);"></i>Đánh Giá Của Khách Hàng</h3>
+
+        <div class="row">
+            <!-- Cột Trái Hiển Thị Lịch Sử Đánh Giá -->
+            <div class="col-md-7 mb-4 mb-md-0">
+                @if (totalReviews == 0)
+                {
+                    <div class="text-center p-5 rounded" style="background: var(--mist); border: 1px dashed var(--sand);">
+                        <i class="far fa-comment-dots fa-3x mb-3" style="color: var(--bark);"></i>
+                        <h5 style="color: var(--charcoal);">Chưa có đánh giá nào cho Thú Cưng này.</h5>
+                        <p class="small" style="color: var(--bark);">Hãy là người đầu tiên bóc tem em nó nhé!</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="d-flex flex-column gap-3 review-list" style="max-height: 500px; overflow-y: auto; padding-right: 10px;">
+                        @foreach(var review in Model.Reviews!.OrderByDescending(r => r.CreatedAt))
+                        {
+                            <div class="p-3 rounded-3 shadow-sm" style="background: var(--warm-white); border: 1px solid var(--sand); border-left: 4px solid var(--terra) !important;">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div class="fw-bold d-flex align-items-center" style="color: var(--charcoal);">
+                                        <div class="rounded-circle d-flex justify-content-center align-items-center me-2 shadow-sm" style="background: var(--mist); width: 35px; height: 35px;">
+                                            <i class="fas fa-user" style="color: var(--bark);"></i>
+                                        </div>
+                                        @review.ApplicationUser?.FullName
+                                    </div>
+                                    <small style="color: var(--bark);">@review.CreatedAt.ToString("dd/MM/yyyy HH:mm")</small>
+                                </div>
+                                <div class="small mb-2" style="color: var(--gold);">
+                                    @for (int i = 1; i <= 5; i++)
+                                    {
+                                        if (i <= review.Rating) { <i class="fas fa-star"></i> }
+                                        else { <i class="far fa-star" style="color: #d4c4b0;"></i> }
+                                    }
+                                </div>
+                                <p class="m-0 fst-italic" style="color: var(--charcoal);">"@review.Comment"</p>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+
+
+            <!-- Cột Phải Nhập Bình Luận Mới Đoạn Code Viết Báo Cáo -->
+            <div class="col-md-5">
+                <div class="p-4 rounded-3 h-100" style="background: var(--mist); border: 1px solid var(--sand);">
+                    <h5 class="mb-4 fw-bold" style="color: var(--charcoal); font-family: 'Playfair Display', serif;">Viết Đánh Giá Của Bạn</h5>
+                    
+                    @if (User.Identity?.IsAuthenticated ?? false)
+                    {
+                        <form asp-controller="Product" asp-action="PostReview" method="post">
+                            <input type="hidden" name="productId" value="@Model.Id" />
+                            
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold" style="color: var(--bark);">Đánh giá chung (Sao)</label>
+                                <select name="rating" class="form-select fw-bold" style="background: #fff; color: var(--charcoal); border-color: var(--sand);" required>
+                                    <option value="5">⭐⭐⭐⭐⭐ - Rất Tuyệt Vời</option>
+                                    <option value="4">⭐⭐⭐⭐ - Hài Lòng</option>
+                                    <option value="3">⭐⭐⭐ - Bình Thường</option>
+                                    <option value="2">⭐⭐ - Hơi Tệ</option>
+                                    <option value="1">⭐ - Khủng Hoảng</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label small fw-bold" style="color: var(--bark);">Bình Luận Nhận Xét</label>
+                                <textarea name="comment" rows="4" class="form-control" style="background: #fff; color: var(--charcoal); border-color: var(--sand);" placeholder="Tự do bình phẩm bé mèo này nhé..." required></textarea>
+                            </div>
+
+                            <button type="submit" class="btn w-100 fw-bold shadow-sm" style="background: var(--gold); color: #fff; border-radius: 10px;"><i class="fas fa-paper-plane me-2"></i>ĐĂNG ĐÁNH GIÁ</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <div class="text-center mt-5">
+                            <i class="fas fa-user-lock fa-3x mb-3" style="color: var(--bark);"></i>
+                            <h6 class="fw-bold" style="color: var(--charcoal);">BẠN CHƯA ĐĂNG NHẬP</h6>
+                            <p class="small mb-4" style="color: var(--bark);">Bạn phải là khách hàng của hệ thống để được bình phẩm ở đây.</p>
+                            <a asp-area="Identity" asp-page="/Account/Login" class="btn w-100 fw-bold" style="background: var(--gold); color: #fff; border-radius: 10px;"><i class="fas fa-sign-in-alt me-2"></i>ĐĂNG NHẬP NGAY</a>
+                        </div>
+                    }
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts {
+    <style>
+        .review-list::-webkit-scrollbar {
+            width: 6px;
+        }
+        .review-list::-webkit-scrollbar-track {
+            background: var(--mist);
+            border-radius: 10px;
+        }
+        .review-list::-webkit-scrollbar-thumb {
+            background: var(--sand);
+            border-radius: 10px;
+        }
+    </style>
+}
