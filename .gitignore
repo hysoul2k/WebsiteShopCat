@@ -1,0 +1,35 @@
+# Bin/obj build output
+**/bin/
+**/obj/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# .NET
+*.dll
+*.exe
+*.pdb
+*.mdb
+*.cache
+*.db
+*.bak
+*.log
+
+# Rider
+.idea/
+*.sln.iml
+
+# NuGet
+*.nupkg
+packages/
+
+# ASP.NET
+*.vspscc
+
+# Others
+*.dotCover
+

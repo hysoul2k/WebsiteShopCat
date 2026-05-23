@@ -18,11 +18,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <!-- Thêm thư viện jQuery và SweetAlert2 -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@@11/dist/sweetalert2.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@@11"></script>
     @await RenderSectionAsync("Meta", required: false)
+    @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
     <!-- TOP BAR -->
@@ -47,19 +46,18 @@
                 {
                     <a asp-area="Admin" asp-controller="OrderManager" asp-action="Index" style="color: var(--color-primary); font-weight: 700;">Quản Trị Viên</a>
                 }
-                <a href="#">Blog</a>
             </nav>
 
             <div class="header-actions">
                 <div class="search-box">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-                    <input type="text" id="nav-search-input" placeholder="Tìm pate, đồ chơi cho boss..." autocomplete="off">
+                    <label for="nav-search-input" class="visually-hidden">Tìm kiếm sản phẩm</label>
+                    <input type="text" id="nav-search-input" placeholder="Tìm pate, đồ chơi cho boss..." autocomplete="off" aria-label="Tìm kiếm sản phẩm">
                     <div id="search-results-container"></div>
                 </div>
                 
                 <partial name="_LoginPartial" />
-                
-                <a id="cart-icon" asp-controller="ShoppingCart" asp-action="Index" class="btn-custom cart-btn">
+                <a id="cart-icon" asp-controller="ShoppingCart" asp-action="Index" class="btn-custom cart-btn" aria-label="Giỏ đồ">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
                     Giỏ Đồ
                     <span class="cart-count" id="cart-count">@cartCount</span>
@@ -72,17 +70,40 @@
         @RenderBody()
     </div>
 
-    <footer class="mt-5 py-5 border-top bg-surface border-standard">
-        <div class="container">
-            <div class="row text-center text-md-start g-4">
-                <div class="col-md-6">
-                    <h5 class="fw-bold text-on-light" style="font-family: 'Cormorant Garamond', serif;">MEOW GARDEN © @DateTime.Now.Year</h5>
-                    <p class="small text-muted mb-0">Phát triển bởi Ban quản trị Meow Garden</p>
+    <footer style="background: var(--color-surface); border-top: 1px solid var(--color-border); padding: 56px 24px 32px;">
+        <div style="max-width: 1200px; margin: 0 auto;">
+            <div class="row g-5">
+                <div class="col-md-4">
+                    <a asp-area="" asp-controller="Home" asp-action="Index" class="d-flex align-items-center gap-2 mb-3 text-decoration-none">
+                        <img src="/images/logo.jpg" alt="Meow Garden" style="height: 40px; width: 40px; border-radius: 50%; object-fit: cover;" />
+                        <span style="font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 700; color: var(--color-primary);">Meow Garden</span>
+                    </a>
+                    <p class="small mb-3" style="color: var(--color-text-muted); line-height: 1.7;">Thiên đường phụ kiện thú cưng cao cấp.<br>Uy tín – Chất lượng – Tận tâm.</p>
+                    <div class="d-flex gap-3">
+                        <a href="https://facebook.com/hysoul2k" target="_blank" style="color: var(--color-text-muted); font-size: 17px; transition: color 0.2s;" onmouseover="this.style.color='var(--color-primary)'" onmouseout="this.style.color='var(--color-text-muted)'"><i class="fab fa-facebook-f"></i></a>
+                        <a href="https://zalo.me/0908758533" target="_blank" style="color: var(--color-text-muted); font-size: 17px; transition: color 0.2s;" onmouseover="this.style.color='var(--color-primary)'" onmouseout="this.style.color='var(--color-text-muted)'"><i class="fas fa-phone-alt"></i></a>
+                    </div>
                 </div>
-                <div class="col-md-6 text-md-end">
-                    <p class="mb-0 fw-bold text-on-light" style="font-family: 'Cormorant Garamond', serif;">Hệ thống Pet Shop Cao Cấp</p>
-                    <p class="small text-muted mb-0">Thành phố Hồ Chí Minh, Việt Nam</p>
+                <div class="col-md-4">
+                    <h6 style="font-family: 'DM Sans', sans-serif; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; font-size: 11px; color: var(--color-text-muted); margin-bottom: 20px;">Chính Sách</h6>
+                    <ul class="list-unstyled mb-0" style="color: var(--color-text-muted); font-size: 14px; line-height: 2.2;">
+                        <li><i class="fas fa-truck me-2" style="color: var(--color-primary); width: 16px;"></i>Miễn phí ship đơn trên 300.000đ</li>
+                        <li><i class="fas fa-redo me-2" style="color: var(--color-primary); width: 16px;"></i>Đổi trả trong 7 ngày</li>
+                        <li><i class="fas fa-shield-alt me-2" style="color: var(--color-primary); width: 16px;"></i>Sản phẩm chính hãng 100%</li>
+                    </ul>
                 </div>
+                <div class="col-md-4">
+                    <h6 style="font-family: 'DM Sans', sans-serif; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; font-size: 11px; color: var(--color-text-muted); margin-bottom: 20px;">Liên Hệ</h6>
+                    <ul class="list-unstyled mb-0" style="color: var(--color-text-muted); font-size: 14px; line-height: 2.2;">
+                        <li><i class="fas fa-map-marker-alt me-2" style="color: var(--color-primary); width: 16px;"></i>TP. Hồ Chí Minh, Việt Nam</li>
+                        <li><i class="fas fa-phone-alt me-2" style="color: var(--color-primary); width: 16px;"></i>0908 758 533</li>
+                        <li><i class="fas fa-clock me-2" style="color: var(--color-primary); width: 16px;"></i>8:00 – 21:00 hàng ngày</li>
+                    </ul>
+                </div>
+            </div>
+            <div style="border-top: 1px solid var(--color-border); margin-top: 40px; padding-top: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                <span style="font-size: 13px; color: var(--color-text-muted);">© @DateTime.Now.Year Meow Garden. Bảo lưu mọi quyền.</span>
+                <span style="font-size: 13px; color: var(--color-text-muted);">Hệ thống Pet Shop Cao Cấp</span>
             </div>
         </div>
     </footer>
@@ -92,6 +113,7 @@
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
     <script>
         $(document).ready(function () {
             // --- SIGNALR: LẮNG NGHE CẬP NHẬT TRẠNG THÁI ---
@@ -178,20 +200,12 @@
                                 flyToCart(productImage, $('#cart-icon'));
                             }
 
-                            // 3. Hiển thị thông báo Toast SweetAlert2
-                            const Toast = Swal.mixin({
-                                toast: true,
-                                position: 'top-end',
-                                showConfirmButton: false,
-                                timer: 3000,
-                                timerProgressBar: true
-                            });
-
-                            Toast.fire({
-                                icon: 'success',
-                                title: '<span style="color: #bc8f8f; font-weight: bold;">Meow Garden</span> đã nhận đơn!',
-                                text: 'Đã thêm [' + res.productName + '] vào giỏ hàng.'
-                            });
+                            // 3. Hiển thị thông báo Toast
+                            if (typeof window.showToast === 'function') {
+                                window.showToast('Đã thêm [' + res.productName + '] vào giỏ hàng.', 'success');
+                            } else {
+                                Swal.fire('Thành công', 'Đã thêm ' + res.productName + ' vào giỏ hàng.', 'success');
+                            }
 
                             // 4. Cập nhật Badge số lượng trên Navbar (sau khi animation xong)
                             setTimeout(function() {
@@ -285,9 +299,9 @@
                                 });
                             } else {
                                 container.append(`
-                                    <div class="no-result-item">
+                                    <div class="no-result-item text-center p-3">
                                         <i class="fas fa-cat fa-2x mb-2" style="color: #bc8f8f; opacity: 0.5;"></i>
-                                        <div>Không tìm thấy bé mèo nào khớp 😿</div>
+                                        <div>Không tìm thấy, thử từ khác nhé?</div>
                                     </div>
                                 `);
                             }

@@ -1,8 +1,10 @@
 @model IEnumerable<Huy_Final_0843.Models.Order>
-
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
 @{
     ViewData["Title"] = "Quản lý Đơn hàng";
+    var token = Antiforgery.GetAndStoreTokens(Context).RequestToken;
 }
+<input type="hidden" name="__RequestVerificationToken" value="@token" id="af-token" />
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h3 class="fw-bold m-0"><i class="fas fa-clipboard-list me-2"></i>Danh Sách Đơn Hàng</h3>
@@ -38,6 +40,7 @@
                     <th>Tên Khách Hàng</th>
                     <th>Ngày Đặt</th>
                     <th class="text-end">Tổng Tiền</th>
+                    <th class="text-center">Thanh Toán</th>
                     <th class="text-center">Trạng Thái</th>
                     <th class="text-center">Thao Tác</th>
                 </tr>
@@ -57,6 +60,23 @@
                         <td class="text-end fw-bold align-middle">
                             <span class="text-white">@item.TotalPrice.ToString("N0")</span>
                             <span style="color: var(--accent-color);">đ</span>
+                        </td>
+                        <td class="text-center align-middle">
+                            @if (item.PaymentMethod == "BankTransfer")
+                            {
+                                if (item.PaymentStatus == "Pending")
+                                {
+                                    <span class="badge bg-warning text-dark"><i class="fas fa-university me-1"></i>CK - Chờ xác nhận</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary"><i class="fas fa-university me-1"></i>Chuyển khoản</span>
+                                }
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary"><i class="fas fa-hand-holding-usd me-1"></i>COD</span>
+                            }
                         </td>
                         <td class="text-center align-middle">
                             @switch (item.Status)
@@ -205,8 +225,16 @@
                 cancelButtonText: 'Hủy'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Gọi Action xóa bằng cách chuyển hướng 
-                    window.location.href = '/Admin/OrderManager/ClearAllOrders';
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = '/Admin/OrderManager/ClearAllOrders';
+                    const t = document.createElement('input');
+                    t.type = 'hidden';
+                    t.name = '__RequestVerificationToken';
+                    t.value = document.getElementById('af-token').value;
+                    form.appendChild(t);
+                    document.body.appendChild(form);
+                    form.submit();
                 }
             });
         }

@@ -1,6 +1,8 @@
 using Huy_Final_0843.Models;
+using Huy_Final_0843.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Huy_Final_0843.Controllers
@@ -11,15 +13,18 @@ namespace Huy_Final_0843.Controllers
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IConfiguration _configuration;
+        private readonly IEmailSender _emailSender;
 
         public CheckoutController(
-            ApplicationDbContext context, 
+            ApplicationDbContext context,
             UserManager<ApplicationUser> userManager,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            IEmailSender emailSender)
         {
             _context = context;
             _userManager = userManager;
             _configuration = configuration;
+            _emailSender = emailSender;
         }
 
         // Cổng hiển thị QR Chuyển Khoản
@@ -56,12 +61,21 @@ namespace Huy_Final_0843.Controllers
                 return NotFound("Đơn hàng không tồn tại.");
             }
 
-            // Đổi trạng thái từ "Chờ xử lý" sang "Chờ Admin xác nhận" (Pending)
             order.Status = OrderStatus.Pending;
             order.PaymentStatus = "Pending";
 
             _context.Orders.Update(order);
             await _context.SaveChangesAsync();
+
+            // --- EMAIL THÔNG BÁO ĐÃ NHẬN THÔNG TIN CHUYỂN KHOẢN ---
+            try
+            {
+                var viewOrderUrl = Url.Action("MyOrders", "Order", null, Request.Scheme) ?? "";
+                var subject = $"Meow Garden - Đã nhận thông tin chuyển khoản #{order.Id}";
+                var body = EmailTemplateHelper.GetBankTransferPendingTemplate(order.Id, order.TotalPrice, viewOrderUrl);
+                await _emailSender.SendEmailAsync(user.Email ?? "", subject, body);
+            }
+            catch { /* Email lỗi không chặn flow */ }
 
             return View("PaymentSuccess", order.Id);
         }

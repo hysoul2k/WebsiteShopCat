@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - ADMIN CONTROL PANEL</title>
     <!-- CSS Bootstrap và Môi trường chung -->
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <!-- FontAwesome và Các thư viện xịn -->
@@ -99,9 +100,13 @@
             box-shadow: 0 10px 40px rgba(0,0,0,0.03);
         }
 
-        /* Ép màu chữ đen cho tiêu đề */
-        h1, h2, h3, h4, h5, h6, label, p, span {
+        /* Màu chữ đen cho tiêu đề (không override badge/button spans) */
+        h1, h2, h3, h4, h5, h6, label, p {
             color: #000000 !important;
+        }
+        .admin-main-content td span,
+        .admin-main-content .text-secondary {
+            color: #475569 !important;
         }
 
         /* Table Sáng - Chữ Đen */
@@ -211,6 +216,13 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link @(ViewContext.RouteData.Values["controller"]
+             ?.ToString() == "VoucherManager" ? "active" : "")"
+                       href="/Admin/VoucherManager">
+                        <i class="fas fa-ticket-alt me-2"></i><span>Mã giảm giá</span>
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a asp-area="Admin" asp-controller="AdminUserManager" asp-action="Index" class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "AdminUserManager" ? "active" : "")">
                         <i class="fas fa-users-cog"></i> <span>Quản Lý Tài Khoản</span>
                     </a>
@@ -236,6 +248,7 @@
                         </a>
                     </li>
                 }
+
             </ul>
 
             <div class="p-3 border-top" style="border-color: rgba(255,255,255,0.05) !important;">

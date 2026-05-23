@@ -1,7 +1,7 @@
 @page
-@model ForgotPasswordModel
+@model ExternalLoginModel
 @{
-    ViewData["Title"] = "Quên Mật Khẩu";
+    ViewData["Title"] = "Hoàn Tất Đăng Ký";
 }
 
 <div class="auth-wrapper">
@@ -13,30 +13,26 @@
             <span class="sub">Thiên Đường Thú Cưng</span>
         </div>
 
-        <h1 class="auth-title">Quên mật khẩu?</h1>
-        <p class="auth-subtitle">Nhập email và chúng tôi sẽ gửi link đặt lại mật khẩu</p>
+        <h1 class="auth-title">Xác nhận tài khoản</h1>
+        <p class="auth-subtitle">
+            Đăng nhập thành công qua <strong>@Model.ProviderDisplayName</strong>.<br>
+            Xác nhận email để hoàn tất.
+        </p>
 
-        <form method="post">
+        <form asp-page-handler="Confirmation" asp-route-returnUrl="@Model.ReturnUrl" method="post">
             <div asp-validation-summary="ModelOnly" class="auth-error" role="alert"></div>
 
             <div class="mb-4">
                 <label class="auth-label">Email</label>
-                <input asp-for="Input.Email" class="auth-input" autocomplete="username"
-                       placeholder="example@email.com" type="email" />
+                <input asp-for="Input.Email" class="auth-input" type="email"
+                       placeholder="Xác nhận email của bạn" />
                 <span asp-validation-for="Input.Email" class="auth-field-error"></span>
             </div>
 
             <button type="submit" class="btn-auth">
-                <i class="fas fa-paper-plane me-2"></i>Gửi Link Đặt Lại
+                <i class="fas fa-check me-2"></i>Hoàn Tất Đăng Ký
             </button>
         </form>
-
-        <div class="auth-divider"></div>
-
-        <p class="auth-register-link">
-            Nhớ ra mật khẩu rồi?
-            <a asp-page="./Login">Đăng nhập ngay</a>
-        </p>
 
     </div>
 </div>

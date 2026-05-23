@@ -36,34 +36,36 @@
                 </div>
             </div>
             <div class="col-lg-7 hero-right">
+                @{
+                    var bannerList = ViewBag.BannerProducts as List<Huy_Final_0843.Models.Product> ?? new List<Huy_Final_0843.Models.Product>();
+                }
                 <div id="heroCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel" data-bs-interval="4000">
                     <div class="carousel-indicators">
-                        <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
-                        <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
-                        <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="2" aria-label="Slide 3"></button>
+                        @for (int i = 0; i < bannerList.Count; i++)
+                        {
+                            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="@i"
+                                    class="@(i == 0 ? "active" : "")" aria-label="Slide @(i+1)"></button>
+                        }
                     </div>
                     <div class="carousel-inner shadow-lg rounded-4">
-                        <div class="carousel-item active">
-                            <img src="/images/Gustav_chocolate.jpg" class="d-block w-100 carousel-img" alt="Slide 1">
-                            <div class="carousel-caption-custom">
-                                <h5>Ưu Đãi Pate Siêu Ngon</h5>
-                                <p>Giảm giá đến 30% cho các loại pate hạt nhập khẩu</p>
+                        @for (int i = 0; i < bannerList.Count; i++)
+                        {
+                            var p = bannerList[i];
+                            <div class="carousel-item @(i == 0 ? "active" : "")">
+                                <img src="@p.ImageUrl" class="d-block w-100 carousel-img" alt="@p.Name"
+                                     style="object-fit:cover; height:420px; filter:brightness(0.82);">
+                                <div class="carousel-caption-custom">
+                                    <div class="small mb-1" style="opacity:.8;letter-spacing:.05em;text-transform:uppercase;">@p.Category?.Name</div>
+                                    <h5>@p.Name</h5>
+                                    <p style="margin-bottom:12px;">@p.Price.ToString("N0") đ</p>
+                                    <a asp-controller="Product" asp-action="Details" asp-route-id="@p.Id"
+                                       class="btn btn-sm px-4 fw-bold"
+                                       style="background:var(--color-primary,#2D5016);color:#fff;border-radius:20px;">
+                                        Xem ngay
+                                    </a>
+                                </div>
                             </div>
-                        </div>
-                        <div class="carousel-item">
-                            <img src="/images/Norwegian-Forest-Meo-rung-Na-Uy-shopvatnuoivn-nai-pet-c0.jpg" class="d-block w-100 carousel-img" alt="Slide 2">
-                            <div class="carousel-caption-custom">
-                                <h5>Cát Vệ Sinh Hữu Cơ</h5>
-                                <p>Khử mùi tuyệt đối, an toàn cho cả sen và boss</p>
-                            </div>
-                        </div>
-                        <div class="carousel-item">
-                            <img src="/images/z6713770849950_4e43d4d0343461cbd3ed626ba63b173b.jpg" class="d-block w-100 carousel-img" alt="Slide 3">
-                            <div class="carousel-caption-custom">
-                                <h5>Đồ Chơi Thông Minh</h5>
-                                <p>Kích thích tư duy, vận động linh hoạt mỗi ngày</p>
-                            </div>
-                        </div>
+                        }
                     </div>
                     <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
                         <span class="carousel-control-prev-icon" aria-hidden="true"></span>
@@ -86,9 +88,23 @@
             <h2 class="section-title">Danh Mục Mua Sắm</h2>
         </div>
         
+        @{
+            string GetCatIcon(string name) {
+                var n = name.ToLower();
+                if (n.Contains("thức ăn") || n.Contains("food") || n.Contains("pate") || n.Contains("hạt")) return "fa-drumstick-bite";
+                if (n.Contains("đồ chơi") || n.Contains("chơi")) return "fa-gamepad";
+                if (n.Contains("vệ sinh") || n.Contains("tắm") || n.Contains("hygiene")) return "fa-bath";
+                if (n.Contains("phụ kiện") || n.Contains("vòng cổ") || n.Contains("dây")) return "fa-gem";
+                if (n.Contains("giường") || n.Contains("nệm") || n.Contains("ngủ")) return "fa-bed";
+                if (n.Contains("giống") || n.Contains("mèo con") || n.Contains("breed")) return "fa-cat";
+                if (n.Contains("khay") || n.Contains("cát") || n.Contains("litter")) return "fa-box-open";
+                if (n.Contains("thuốc") || n.Contains("sức khỏe") || n.Contains("health")) return "fa-heartbeat";
+                return "fa-paw";
+            }
+        }
         <div class="cat-grid">
             <a href="@Url.Action("Index", new { categoryId = "" })" class="cat-card @(ViewBag.CurrentCategory == null ? "active" : "")">
-                <div class="cat-icon">🐾</div>
+                <div class="cat-icon"><i class="fas fa-th-large" style="font-size:20px; color: var(--color-primary);"></i></div>
                 <div>
                     <div class="cat-name">Tất cả</div>
                 </div>
@@ -98,7 +114,7 @@
                 foreach (var cat in ViewBag.Categories)
                 {
                     <a href="@Url.Action("Index", new { categoryId = cat.Id })" class="cat-card @((ViewBag.CurrentCategory != null && (int)ViewBag.CurrentCategory == cat.Id) ? "active" : "")">
-                        <div class="cat-icon">✨</div>
+                        <div class="cat-icon"><i class="fas @GetCatIcon(cat.Name)" style="font-size:20px; color: var(--color-primary);"></i></div>
                         <div>
                             <div class="cat-name">@cat.Name</div>
                         </div>

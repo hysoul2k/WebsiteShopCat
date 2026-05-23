@@ -66,6 +66,52 @@ namespace Huy_Final_0843.Helpers
             return GetBaseTemplate("Khôi phục mật khẩu", content);
         }
 
+        public static string GetOrderConfirmationTemplate(int orderId, decimal total, string paymentMethod, string viewOrderUrl)
+        {
+            var paymentNote = paymentMethod == "BankTransfer"
+                ? "<p style='background:#fff8e1;border-left:4px solid #ffc107;padding:12px 16px;border-radius:4px;'>💳 <b>Vui lòng hoàn tất chuyển khoản</b> để đơn hàng được xử lý. Sau khi admin xác nhận, bạn sẽ nhận thêm email cập nhật.</p>"
+                : "<p style='background:#e8f5e9;border-left:4px solid #4caf50;padding:12px 16px;border-radius:4px;'>✅ Phương thức thanh toán: <b>Thanh toán khi nhận hàng (COD)</b></p>";
+
+            var content = $@"
+                <p>Xin chào!</p>
+                <p>Cảm ơn bạn đã đặt hàng tại <b>Meow Garden</b>. Chúng mình đã nhận được đơn hàng của bạn và đang chuẩn bị xử lý! 🐱</p>
+                <div style='background-color: #f9f9f9; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #bc8f8f;'>
+                    <table style='width: 100%; border-collapse: collapse;'>
+                        <tr><td style='padding: 5px 0; color: #666;'>Mã đơn hàng:</td><td style='text-align: right; font-weight: bold;'>#{orderId}</td></tr>
+                        <tr><td style='padding: 5px 0; color: #666;'>Tổng thanh toán:</td><td style='text-align: right; font-weight: bold; color: #bc8f8f;'>{total:N0} đ</td></tr>
+                        <tr><td style='padding: 5px 0; color: #666;'>Trạng thái:</td><td style='text-align: right;'><span style='background-color: #ffc107; color: #333; padding: 2px 10px; border-radius: 15px; font-size: 12px;'>Chờ xử lý</span></td></tr>
+                    </table>
+                </div>
+                {paymentNote}
+                <div style='text-align: center; margin-top: 24px;'>
+                    <a href='{viewOrderUrl}' class='btn'>XEM ĐƠN HÀNG CỦA TÔI</a>
+                </div>
+                <p style='margin-top: 30px; font-size: 13px; color: #888;'>Nếu bạn có thắc mắc, hãy liên hệ chúng mình qua email. Cảm ơn bạn đã tin tưởng Meow Garden! 🐾</p>";
+
+            return GetBaseTemplate("Xác nhận đặt hàng thành công!", content);
+        }
+
+        public static string GetBankTransferPendingTemplate(int orderId, decimal total, string viewOrderUrl)
+        {
+            var content = $@"
+                <p>Xin chào!</p>
+                <p>Chúng mình đã nhận được thông tin bạn vừa chuyển khoản cho đơn hàng <b>#{orderId}</b>.</p>
+                <div style='background-color: #f9f9f9; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #ffc107;'>
+                    <table style='width: 100%; border-collapse: collapse;'>
+                        <tr><td style='padding: 5px 0; color: #666;'>Mã đơn hàng:</td><td style='text-align: right; font-weight: bold;'>#{orderId}</td></tr>
+                        <tr><td style='padding: 5px 0; color: #666;'>Số tiền:</td><td style='text-align: right; font-weight: bold; color: #bc8f8f;'>{total:N0} đ</td></tr>
+                        <tr><td style='padding: 5px 0; color: #666;'>Trạng thái:</td><td style='text-align: right;'><span style='background-color: #ffc107; color: #333; padding: 2px 10px; border-radius: 15px; font-size: 12px;'>Chờ xác nhận</span></td></tr>
+                    </table>
+                </div>
+                <p>Admin sẽ xác nhận giao dịch trong vòng <b>1-2 giờ làm việc</b>. Sau khi xác nhận, bạn sẽ nhận thêm email thông báo.</p>
+                <div style='text-align: center; margin-top: 24px;'>
+                    <a href='{viewOrderUrl}' class='btn'>THEO DÕI ĐƠN HÀNG</a>
+                </div>
+                <p style='margin-top: 30px; font-size: 13px; color: #888;'>Cảm ơn bạn đã tin tưởng Meow Garden! 🐾</p>";
+
+            return GetBaseTemplate("Đã nhận thông tin chuyển khoản", content);
+        }
+
         public static string GetOrderUpdateTemplate(int orderId, decimal total, string status, string viewOrderUrl)
         {
             var content = $@"

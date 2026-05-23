@@ -1,5 +1,16 @@
 @model Huy_Final_0843.Models.ShoppingCart
 
+@if (Model == null || !Model.Items.Any())
+{
+    <div class="text-center py-5 my-5">
+        <i class="fas fa-shopping-basket fa-4x mb-3" style="color: #bc8f8f; opacity: 0.8;"></i>
+        <h2 style="font-family: 'Cormorant Garamond', serif; font-weight: 700; color: var(--color-primary);">Giỏ hàng của bạn đang trống</h2>
+        <p class="text-muted mb-4">Hãy thêm vài món đồ chơi hoặc pate thơm ngon cho boss nhé!</p>
+        <a href="/Home/Index" class="btn btn-primary-custom px-4 py-2" style="font-weight: bold; border-radius: 8px; font-size: 1.1rem;">Khám phá sản phẩm</a>
+    </div>
+}
+else
+{
 <div class="card p-4 shadow-earthy border-standard" style="border-radius: 12px; background: var(--color-surface);">
     <h3 class="mb-4 text-primary" style="font-family: 'Cormorant Garamond', serif; font-weight: 700;">
         <i class="fas fa-shopping-cart me-2 text-accent"></i>Giỏ đồ của bé
@@ -20,7 +31,7 @@
                 {
                     <tr style="border-bottom: 1px solid var(--color-border); align-items: center;">
                         <td class="py-3">
-                            <img src="@item.ImageUrl" class="product-image-square rounded shadow-sm border border-standard" style="width: 60px; height: 60px; object-fit: cover;" />
+                            <img src="@item.ImageUrl" alt="@item.Name" class="product-image-square rounded shadow-sm border border-standard" style="width: 60px; height: 60px; object-fit: cover;" />
                         </td>
                         <td class="align-middle fw-bold text-on-light">@item.Name</td>
                         <td class="align-middle text-muted">@item.Price.ToString("#,##0") đ</td>
@@ -45,6 +56,14 @@
                      <button class="btn btn-primary-custom" type="button" id="btnApplyVoucher" style="border: 1.5px solid var(--color-primary); border-top-left-radius: 0; border-bottom-left-radius: 0;">ÁP DỤNG</button>
                  </div>
                  <div id="voucherMessage" class="small fw-bold mt-2"></div>
+
+                 <!-- Mở rộng: Chọn từ danh sách voucher có sẵn -->
+                 <button id="btn-show-vouchers" type="button" class="btn btn-link p-0 mt-3" style="text-decoration: underline;">Chọn từ mã hiện có của bạn ▾</button>
+
+                 <div id="voucher-list" class="voucher-dropdown mt-2" style="display:none; border:1px solid var(--color-border); padding:12px; border-radius:8px; background: var(--color-bg);">
+                     <div class="loading-spinner small text-muted">Đang tải...</div>
+                     <!-- Voucher cards sẽ được render bằng JS -->
+                 </div>
              </div>
         </div>
 
@@ -76,6 +95,7 @@
         </div>
     </div>
 </div>
+}
 
 @section Scripts {
     <script>
@@ -118,6 +138,42 @@
                         $("#voucherMessage").html("<span style='color: #9B1C1C;'>Lỗi kết nối Server!</span>");
                     }
                 });
+            });
+
+            // Hiển thị danh sách voucher có sẵn và cho phép chọn nhanh
+            $(document).on('click', '#btn-show-vouchers', async function () {
+                const $list = $('#voucher-list');
+                $list.html('<div class="loading-spinner small text-muted">Đang tải...</div>').show();
+
+                try {
+                    const res = await fetch('/ShoppingCart/GetAvailableVouchers');
+                    if (!res.ok) throw new Error('Network');
+                    const vouchers = await res.json();
+
+                    const html = (vouchers && vouchers.length) ? vouchers.map(v => `
+                        <div class="voucher-card d-flex justify-content-between align-items-center p-2 mb-2" data-code="${v.code}" style="border:1px solid var(--color-border); border-radius:8px; background: var(--color-surface);">
+                            <div>
+                                <strong>${v.code}</strong>
+                                <div class="small text-muted">${v.discountDisplay}</div>
+                            </div>
+                            <div>
+                                <button class="btn btn-sm btn-primary btn-select-voucher">Dùng ngay</button>
+                            </div>
+                        </div>
+                    `).join('') : '<p class="small text-muted">Không có mã nào phù hợp với đơn hàng của bạn</p>';
+
+                    $list.html(html);
+
+                    // Gắn event cho các nút chọn
+                    $list.find('.btn-select-voucher').on('click', function () {
+                        const code = $(this).closest('.voucher-card').data('code');
+                        $('#voucherCodeInput').val(code);
+                        $('#btnApplyVoucher').trigger('click');
+                        $list.hide();
+                    });
+                } catch (err) {
+                    $list.html('<div class="small text-danger">Không thể tải danh sách mã. Vui lòng thử lại sau.</div>');
+                }
             });
         });
     </script>

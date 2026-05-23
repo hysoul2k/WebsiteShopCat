@@ -9,7 +9,7 @@
     'use strict';
 
     // ── Config ──────────────────────────────────────────
-    const API_URL = '/api/chat';
+    const API_URL = '/api/chat/send';
     const REQUEST_TIMEOUT_MS = 28000;  // 28s (server has 25s)
     const MAX_RETRIES = 1;
 
@@ -302,7 +302,8 @@
 
         // Call API with retry
         const result = await callApi({
-            message: text
+            mode: currentMode,
+            messages: [{ role: 'user', content: text }]
         });
 
         hideTyping();

@@ -1,23 +1,33 @@
-﻿@model int
+@model int
 @{
     ViewData["Title"] = "Đặt hàng thành công";
 }
 
-<div class="container mt-5">
-    <div class="glass-card p-5 text-center">
-        <div class="mb-4">
-            <i class="bi bi-check-circle-fill" style="font-size: 5rem; color: var(--accent-color);"></i>
-        </div>
-        <h2 class="text-white mb-3">ĐẶT HÀNG THÀNH CÔNG!</h2>
-        <p class="text-secondary fs-5">
-            Cảm ơn bạn đã ủng hộ Cat Store. <br />
-            Mã đơn hàng của bạn là: <span class="text-white fw-bold">#@Model</span>
-        </p>
-        <hr class="border-secondary my-4" />
-        <p class="text-gray small">Chúng tôi sẽ sớm liên hệ với bạn qua thông tin đã cung cấp để giao "boss" tận nơi.</p>
-
-        <div class="mt-5">
-            <a href="/" class="btn btn-neon rounded-pill px-5 py-2">TIẾP TỤC MUA SẮM</a>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 text-center">
+            <div class="card border-0 shadow-sm p-5" style="border-radius: 16px;">
+                <div class="mb-4">
+                    <i class="fas fa-check-circle fa-5x" style="color: var(--terra, #bc8f8f);"></i>
+                </div>
+                <h2 class="fw-bold mb-3" style="font-family: 'Cormorant Garamond', serif; color: var(--color-primary);">ĐẶT HÀNG THÀNH CÔNG!</h2>
+                <p class="text-muted fs-5 mb-1">
+                    Cảm ơn bạn đã ủng hộ Meow Garden.
+                </p>
+                <p class="mb-4">
+                    Mã đơn hàng của bạn: <span class="fw-bold" style="color: var(--terra, #bc8f8f);">#@Model</span>
+                </p>
+                <hr class="my-4">
+                <p class="text-muted small mb-4">Chúng tôi sẽ sớm liên hệ với bạn qua thông tin đã cung cấp để giao "boss" tận nơi.</p>
+                <div class="d-flex gap-3 justify-content-center">
+                    <a asp-controller="Order" asp-action="MyOrders" class="btn btn-outline-secondary px-4 py-2 fw-bold" style="border-radius: 8px;">
+                        <i class="fas fa-box-open me-2"></i>Xem đơn hàng
+                    </a>
+                    <a asp-controller="Home" asp-action="Index" class="btn btn-primary-custom px-4 py-2 fw-bold" style="border-radius: 8px;">
+                        <i class="fas fa-store me-2"></i>Tiếp tục mua sắm
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 </div>

@@ -1,0 +1,80 @@
+@model Huy_Final_0843.Models.Voucher
+@{
+    ViewData["Title"] = "Tạo Voucher";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold m-0"><i class="fas fa-ticket-alt me-2"></i>Tạo Voucher Mới</h3>
+    <a asp-action="Index" class="btn btn-outline-light px-4">Quay lại danh sách</a>
+</div>
+
+<div class="card bg-dark border-secondary shadow-sm">
+    <div class="card-body">
+        <form asp-action="Create" method="post" class="voucher-form">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="Code" class="form-label">Mã giảm giá</label>
+                    <div class="input-group">
+                        <input asp-for="Code" class="form-control bg-dark border-secondary text-white" placeholder="VD: MEOW10" required />
+                        <button type="button" class="btn btn-outline-secondary" id="generateCodeButton">Tạo ngẫu nhiên</button>
+                    </div>
+                    <span asp-validation-for="Code" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="DiscountType" class="form-label">Loại giảm giá</label>
+                    <select asp-for="DiscountType" class="form-select bg-dark border-secondary text-white">
+                        <option value="Percent">Phần trăm (%)</option>
+                        <option value="Fixed">Số tiền cố định (₫)</option>
+                    </select>
+                    <span asp-validation-for="DiscountType" class="text-danger"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="DiscountValue" class="form-label">Giá trị giảm</label>
+                    <input asp-for="DiscountValue" type="number" min="0" class="form-control bg-dark border-secondary text-white" placeholder="VD: 10 hoặc 50000" required />
+                    <span asp-validation-for="DiscountValue" class="text-danger"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="MinOrderAmount" class="form-label">Đơn hàng tối thiểu (₫)</label>
+                    <input asp-for="MinOrderAmount" type="number" min="0" class="form-control bg-dark border-secondary text-white" placeholder="VD: 100000" />
+                    <span asp-validation-for="MinOrderAmount" class="text-danger"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="UsageLimit" class="form-label">Giới hạn lượt dùng (0 = không giới hạn)</label>
+                    <input asp-for="UsageLimit" type="number" min="0" class="form-control bg-dark border-secondary text-white" />
+                    <span asp-validation-for="UsageLimit" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="ExpiryDate" class="form-label">Ngày hết hạn</label>
+                    <input asp-for="ExpiryDate" type="date" class="form-control bg-dark border-secondary text-white" required />
+                    <span asp-validation-for="ExpiryDate" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-check mt-4">
+                        <input asp-for="IsActive" class="form-check-input" type="checkbox" checked />
+                        <label asp-for="IsActive" class="form-check-label">Kích hoạt ngay</label>
+                    </div>
+                </div>
+                <div class="col-12 d-flex justify-content-end gap-2">
+                    <button type="submit" class="btn btn-primary">💾 Lưu</button>
+                    <a asp-action="Index" class="btn btn-secondary">Hủy</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.getElementById('generateCodeButton').addEventListener('click', function() {
+            var codeInput = document.querySelector('[name="Code"]');
+            if (!codeInput) return;
+            var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            var randomString = Array.from({length: 6}, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+            codeInput.value = 'MEOW' + randomString;
+        });
+    </script>
+}

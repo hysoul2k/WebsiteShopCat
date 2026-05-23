@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Huy_Final_0843.Services;
@@ -200,6 +201,7 @@ namespace Huy_Final_0843.Controllers
         // ENDPOINT PHỤ: Xóa cache sản phẩm khi admin cập nhật hàng
         // ══════════════════════════════════════════════════════════════
         [HttpPost("clear-cache")]
+        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Staff)]
         public IActionResult ClearProductCache()
         {
             _cache.Remove("db_products");

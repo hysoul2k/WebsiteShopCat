@@ -218,13 +218,13 @@ SẢN PHẨM LIÊN QUAN SỨC KHỎE (từ DB)
 
             // ── API CALL OR HIGH-FIDELITY SIMULATION MODE ──
             string reply;
-            var apiKey = _configuration["Anthropic:ApiKey"];
+            var apiKey = _configuration["Gemini:ApiKey"];
             bool isMockKey = string.IsNullOrEmpty(apiKey) || apiKey == "PASTE_API_KEY_HERE";
 
             if (isMockKey)
             {
                 _logger.LogWarning("[CatRagChatService] Using High-Fidelity Simulation Mode because API Key is placeholder or empty.");
-                reply = SimulateResponse(message, relevantProducts, relevantFaq, relevantBlog);
+                reply = SimulateResponse(message, relevantProducts, relevantFaq, relevantBlog, mode);
             }
             else
             {
@@ -235,7 +235,7 @@ SẢN PHẨM LIÊN QUAN SỨC KHỎE (từ DB)
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "[CatRagChatService] Anthropic API failed. Falling back to high-fidelity simulation.");
-                    reply = SimulateResponse(message, relevantProducts, relevantFaq, relevantBlog);
+                    reply = SimulateResponse(message, relevantProducts, relevantFaq, relevantBlog, mode);
                 }
             }
 
@@ -329,16 +329,17 @@ SẢN PHẨM LIÊN QUAN SỨC KHỎE (từ DB)
             var lower = query.ToLowerInvariant();
 
             // 1. Detect target category based on query keywords
+            // Order matters: food > accessories > breeds (most specific first)
             string? targetCategory = null;
-            if (lower.Contains("ăn") || lower.Contains("hạt") || lower.Contains("pate") || lower.Contains("thức ăn") || lower.Contains("food") || lower.Contains("sữa bột") || lower.Contains("bio milk") || lower.Contains("churu") || lower.Contains("súp thưởng") || lower.Contains("ciao"))
+            if (lower.Contains("ăn") || lower.Contains("hạt") || lower.Contains("pate") || lower.Contains("thức ăn") || lower.Contains("food") || lower.Contains("sữa bột") || lower.Contains("bio milk") || lower.Contains("churu") || lower.Contains("súp thưởng") || lower.Contains("ciao") || lower.Contains("dinh dưỡng"))
             {
                 targetCategory = "Thức ăn cho Mèo";
             }
-            else if (lower.Contains("cát") || lower.Contains("vệ sinh") || lower.Contains("toilet") || lower.Contains("khay") || lower.Contains("đồ chơi") || lower.Contains("cào móng") || lower.Contains("balo") || lower.Contains("bát ăn") || lower.Contains("lược") || lower.Contains("sữa tắm") || lower.Contains("sos") || lower.Contains("khay vệ sinh") || lower.Contains("nhà vệ sinh") || lower.Contains("xẻng") || lower.Contains("cat tree") || lower.Contains("laser"))
+            else if (lower.Contains("cát") || lower.Contains("vệ sinh") || lower.Contains("toilet") || lower.Contains("khay") || lower.Contains("đồ chơi") || lower.Contains("cào móng") || lower.Contains("balo") || lower.Contains("bát ăn") || lower.Contains("lược") || lower.Contains("sữa tắm") || lower.Contains("sos") || lower.Contains("khay vệ sinh") || lower.Contains("nhà vệ sinh") || lower.Contains("xẻng") || lower.Contains("cat tree") || lower.Contains("laser") || lower.Contains("tắm") || lower.Contains("đồ dùng") || lower.Contains("phụ kiện") || lower.Contains("vòng cổ"))
             {
                 targetCategory = "Dụng cụ & Phụ kiện";
             }
-            else if (lower.Contains("mèo") || lower.Contains("giống") || lower.Contains("bé") || lower.Contains("con") || lower.Contains("aln") || lower.Contains("ald") || lower.Contains("ba tư") || lower.Contains("bengal") || lower.Contains("persian") || lower.Contains("sphynx") || lower.Contains("ragdoll") || lower.Contains("xiêm") || lower.Contains("munchkin") || lower.Contains("scottish") || lower.Contains("fold") || lower.Contains("straight") || lower.Contains("russian blue") || lower.Contains("maine coon") || lower.Contains("norwegian") || lower.Contains("abyssinian") || lower.Contains("mướp"))
+            else if (lower.Contains("giống") || lower.Contains("aln") || lower.Contains("ald") || lower.Contains("ba tư") || lower.Contains("bengal") || lower.Contains("persian") || lower.Contains("sphynx") || lower.Contains("ragdoll") || lower.Contains("xiêm") || lower.Contains("munchkin") || lower.Contains("scottish") || lower.Contains("fold") || lower.Contains("straight") || lower.Contains("russian blue") || lower.Contains("maine coon") || lower.Contains("norwegian") || lower.Contains("abyssinian") || lower.Contains("mướp") || lower.Contains("giá mèo") || lower.Contains("mua mèo") || lower.Contains("nhận nuôi"))
             {
                 targetCategory = "Mèo Cảnh";
             }
@@ -469,12 +470,6 @@ SẢN PHẨM LIÊN QUAN SỨC KHỎE (từ DB)
                     }
                 }
 
-                // Ensure products that match basic search keyword criteria are scored
-                if (score == 0 && words.Any(w => w.Length > 2 && searchTarget.Contains(w)))
-                {
-                    score += 1;
-                }
-
                 return new { Product = p, Score = score };
             })
             .Where(x => x.Score > 0)
@@ -596,30 +591,34 @@ SẢN PHẨM LIÊN QUAN SỨC KHỎE (từ DB)
 
         private async Task<string> CallAnthropicApiAsync(string systemPrompt, string userMessage)
         {
-            var client = _httpClientFactory.CreateClient("AnthropicClient");
+            var apiKey = _configuration["Gemini:ApiKey"];
+            var client = _httpClientFactory.CreateClient();
+            var url = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={apiKey}";
+
             var body = new
             {
-                model = "claude-3-5-sonnet-20241022",
-                max_tokens = 1024,
-                temperature = 0.2,
-                system = systemPrompt,
-                messages = new[] { new { role = "user", content = userMessage } }
+                system_instruction = new { parts = new[] { new { text = systemPrompt } } },
+                contents = new[] { new { role = "user", parts = new[] { new { text = userMessage } } } },
+                generationConfig = new { temperature = 0.7, maxOutputTokens = 512 }
             };
 
             var json = JsonSerializer.Serialize(body);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var response = await client.PostAsync("/v1/messages", content);
+            var response = await client.PostAsync(url, content);
             if (!response.IsSuccessStatusCode)
             {
                 var error = await response.Content.ReadAsStringAsync();
-                throw new HttpRequestException($"API call failed: {response.StatusCode} - {error}");
+                _logger.LogError("[CatRagChatService] Gemini API error {StatusCode}: {Error}", response.StatusCode, error);
+                throw new HttpRequestException($"Gemini API failed: {response.StatusCode}");
             }
 
             var responseJson = await response.Content.ReadAsStringAsync();
             using var doc = JsonDocument.Parse(responseJson);
             return doc.RootElement
-                .GetProperty("content")[0]
+                .GetProperty("candidates")[0]
+                .GetProperty("content")
+                .GetProperty("parts")[0]
                 .GetProperty("text")
                 .GetString() ?? "";
         }
@@ -628,86 +627,168 @@ SẢN PHẨM LIÊN QUAN SỨC KHỎE (từ DB)
         // HIGH-FIDELITY SIMULATION MODE (TEST VERIFIABILITY)
         // ══════════════════════════════════════════════════════
 
-        private string SimulateResponse(string message, List<Product> products, FaqItem? faq, BlogPostItem? blog)
+        private string SimulateResponse(string message, List<Product> products, FaqItem? faq, BlogPostItem? blog, string mode = "shop")
         {
             var lower = message.ToLowerInvariant();
 
-            // Check jailbreaks/off-topic again just in case
             if (IsJailbreakOrOffTopic(message))
-            {
                 return REJECTION_MESSAGE;
-            }
 
-            // Test 1: "Mèo 3 tháng ăn gì?"
-            if (lower.Contains("3 tháng") || lower.Contains("mèo con"))
+            // ── HEALTH MODE ──────────────────────────────────────
+            if (mode == "health")
             {
-                var kittenFood = products.FirstOrDefault(p => p.Name.Contains("Kitten") || p.Name.Contains("mèo con") || p.Name.Contains("Bio Milk"));
-                var responseText = "Mèo con 3 tháng tuổi đang trong giai đoạn phát triển xương và cơ bắp, cần chế độ ăn giàu dinh dưỡng và dễ nhai. Bạn nên kết hợp hạt khô ngâm sữa hoặc pate mềm hạt nhỏ.\n\nMeow Garden đề xuất các sản phẩm sau:\n";
-
-                if (kittenFood != null)
+                if (lower.Contains("bỏ ăn") || lower.Contains("không ăn") || lower.Contains("chán ăn"))
                 {
-                    responseText += $"📦 {kittenFood.Name} — {kittenFood.Price:N0}đ\n";
-                }
-                else
-                {
-                    responseText += "📦 Hạt Royal Canin Kitten (2kg) — 380,000đ\n";
-                    responseText += "📦 Pate Nekko Vị Cá Ngừ Trẻ em (70g) — 18,000đ\n";
+                    var appetiteBoost = products.FirstOrDefault(p =>
+                        p.Name.Contains("Churu") || p.Name.Contains("Ciao") || p.Name.Contains("súp") || p.Name.Contains("Súp"));
+                    var advice = "Mèo bỏ ăn có thể do stress, thay đổi môi trường, bệnh răng miệng, hoặc vấn đề nội tạng.\n\n" +
+                        "🔍 Kiểm tra ngay:\n" +
+                        "• Bỏ ăn < 24h + vẫn uống nước + vui vẻ → theo dõi thêm\n" +
+                        "• Bỏ ăn > 24h hoặc kèm nôn/lờ đờ → đến bác sĩ thú y ngay!\n\n" +
+                        "💡 Mẹo kích thích ăn:\n" +
+                        "• Hâm nóng pate/súp thưởng nhẹ (~37°C)\n" +
+                        "• Thử Churu hoặc súp gà để kích thích vị giác";
+                    if (appetiteBoost != null)
+                        advice += $"\n\n🛒 Gợi ý: {appetiteBoost.Name} — {appetiteBoost.Price:N0}đ";
+                    advice += "\n\n⚠️ Thông tin chỉ mang tính tham khảo, không thay thế bác sĩ thú y.";
+                    return advice;
                 }
 
-                return responseText;
+                if (lower.Contains("tiêm") || lower.Contains("vaccine") || lower.Contains("tiêm phòng"))
+                {
+                    return "Lịch tiêm vaccine chuẩn cho mèo con:\n\n" +
+                        "• 8 tuần: Vaccine 3 bệnh (FPV, FHV, FCV) — Mũi 1\n" +
+                        "• 12 tuần: Vaccine 3 bệnh — Mũi 2 + Vaccine dại — Mũi 1\n" +
+                        "• 16 tuần: Vaccine 3 bệnh — Mũi 3 + Vaccine dại — Mũi 2\n" +
+                        "• Hàng năm: Tiêm nhắc lại toàn bộ\n\n" +
+                        "✅ Sau mũi đầu, bác sĩ sẽ hẹn lịch cụ thể cho bé.\n" +
+                        "⚠️ Luôn hỏi bác sĩ thú y để được tư vấn phù hợp với từng bé.";
+                }
+
+                if (lower.Contains("phòng bệnh") || lower.Contains("phòng ngừa"))
+                {
+                    return "Cách phòng bệnh cho mèo hiệu quả:\n\n" +
+                        "1. Tiêm phòng đầy đủ theo lịch (FPV, FHV, FCV, dại)\n" +
+                        "2. Tẩy giun định kỳ: 3 tháng/lần với mèo trưởng thành\n" +
+                        "3. Dinh dưỡng cân bằng: kết hợp hạt khô + pate/súp tươi\n" +
+                        "4. Vệ sinh khay cát hàng ngày để tránh vi khuẩn\n" +
+                        "5. Khám thú y định kỳ 6 tháng/lần\n" +
+                        "6. Tránh tiếp xúc với mèo lạ không rõ nguồn gốc\n\n" +
+                        "⚠️ Luôn hỏi bác sĩ thú y để được tư vấn phù hợp.";
+                }
+
+                if (lower.Contains("nôn") || lower.Contains("ói") || lower.Contains("nôn mửa"))
+                {
+                    return "Mèo nôn có thể do búi lông, ăn quá nhanh, ngộ độc, hoặc bệnh nội tạng.\n\n" +
+                        "Cần đến bác sĩ NGAY nếu:\n" +
+                        "• Nôn liên tục > 3 lần/ngày\n" +
+                        "• Nôn kèm máu hoặc dịch vàng xanh\n" +
+                        "• Lờ đờ, bỏ ăn > 24h\n\n" +
+                        "Nôn do búi lông: Dùng gel tiêu búi lông hoặc trồng cỏ mèo.\n\n" +
+                        "⚠️ Thông tin chỉ mang tính tham khảo, không thay thế bác sĩ thú y.";
+                }
+
+                // Health generic fallback
+                if (faq != null) return faq.Answer;
+                if (blog != null) return blog.Content;
+                return "DrPaws ở đây! 🩺 Bé mèo nhà bạn có triệu chứng gì cụ thể? Mình sẽ tư vấn ngay. Nếu tình trạng nghiêm trọng, hãy đưa bé đến bác sĩ thú y sớm nhất.";
             }
 
-            // Test 2: "Recommend cat food" or "thức ăn cho mèo"
-            if (lower.Contains("recommend") || lower.Contains("gợi ý") || lower.Contains("tư vấn thức ăn") || lower.Contains("food"))
+            // ── SHOP MODE ────────────────────────────────────────
+            var sb2 = new StringBuilder();
+
+            // Mèo con / 3 tháng ăn gì?
+            if (lower.Contains("3 tháng") || lower.Contains("mèo con") || lower.Contains("kitten"))
             {
-                var foodProducts = products.Where(p => p.Name.Contains("Hạt") || p.Name.Contains("Pate") || p.Name.Contains("Royal Canin") || p.Name.Contains("Whiskas")).Take(3).ToList();
-                var responseText = "Meow Garden có các loại thức ăn dinh dưỡng thơm ngon cho mèo:\n\n";
-
-                if (foodProducts.Count >= 2)
+                sb2.AppendLine("Mèo con 3 tháng đang trong giai đoạn phát triển nhanh, cần thức ăn giàu protein và dễ tiêu. Bạn nên kết hợp hạt khô dành riêng cho kitten + pate mềm để bé không bị ngán.");
+                sb2.AppendLine();
+                var kittenItems = products.Any() ? products.Take(3).ToList() : new List<Product>();
+                foreach (var p in kittenItems)
+                    sb2.AppendLine($"🐾 {p.Name} — {p.Price:N0}đ" + (p.StockQuantity == 0 ? " (hết hàng)" : ""));
+                if (!kittenItems.Any())
                 {
-                    foreach (var fp in foodProducts)
-                    {
-                        responseText += $"📦 {fp.Name} — {fp.Price:N0}đ\n";
-                    }
+                    sb2.AppendLine("🐾 Hạt Royal Canin Kitten — 380,000đ");
+                    sb2.AppendLine("🐾 Pate Nekko Vị Cá Ngừ — 18,000đ");
                 }
-                else
-                {
-                    responseText += "📦 Hạt Royal Canin Kitten (2kg) — 380,000đ\n";
-                    responseText += "📦 Pate Nekko Vị Gà & Phô Mai (70g) — 18,000đ\n";
-                    responseText += "📦 Pate Snappy Tom Lon (400g) — 45,000đ\n";
-                }
-
-                return responseText;
+                sb2.AppendLine("\nBé nhà bạn đang ăn gì rồi? Mình tư vấn thêm cho phù hợp nhé! 😊");
+                return sb2.ToString();
             }
 
-            // Test 5: "cat vomiting symptoms" or "nôn mửa"
-            if (lower.Contains("vomiting") || lower.Contains("nôn") || lower.Contains("sức khỏe") || lower.Contains("bệnh"))
+            // Giống mèo chung cư
+            if (lower.Contains("chung cư") || lower.Contains("căn hộ"))
             {
-                return "Mèo bị nôn mửa có thể do nhiều nguyên nhân từ nhẹ đến nặng như: búi lông trong dạ dày, thay đổi thức ăn đột ngột, ngộ độc thức ăn hoặc các bệnh truyền nhiễm nguy hiểm (như Parvovirus ở mèo).\n\nNếu mèo nôn liên tục nhiều lần trong ngày, đi kèm tiêu chảy có máu hoặc lờ đờ, cần đưa đi bác sĩ thú y ngay.\n\n⚕️ Thông tin chỉ mang tính tham khảo, không thay thế bác sĩ thú y.";
+                sb2.AppendLine("Sống chung cư thì mình gợi ý những giống mèo hiền lành, ít ồn và không cần nhiều không gian vận động. Mèo Anh Lông Ngắn, Ba Tư, và Sphynx rất phù hợp vì tính cách điềm tĩnh, không hay kêu.");
+                sb2.AppendLine();
+                foreach (var p in products.Take(3))
+                    sb2.AppendLine($"🐱 {p.Name} — {p.Price:N0}đ" + (p.StockQuantity == 0 ? " (hết hàng)" : ""));
+                sb2.AppendLine("\nBạn ở chung cư tầng mấy? Nếu có ban công thì thêm lựa chọn nữa đó! 🏠");
+                return sb2.ToString();
             }
 
-            // General shopping / info match
+            // Hỏi về giá
+            if (lower.Contains("dưới") || lower.Contains("trên") || lower.Contains("tầm giá") || lower.Contains("giá mèo") || lower.Contains("bao nhiêu"))
+            {
+                bool isUnder = lower.Contains("dưới");
+                sb2.AppendLine(isUnder
+                    ? "Với ngân sách đó, bạn có khá nhiều lựa chọn ngon lành tại Meow Garden:"
+                    : "Đây là những bé cao cấp đang có tại shop:");
+                sb2.AppendLine();
+                foreach (var p in products.Take(4))
+                    sb2.AppendLine($"🐾 {p.Name} — {p.Price:N0}đ" + (p.StockQuantity == 0 ? " ⚠️ hết hàng" : ""));
+                sb2.AppendLine("\nBé nào bạn thấy ưng thì mình kể thêm về tính cách và cách chăm sóc nhé! 😊");
+                return sb2.ToString();
+            }
+
+            // Đồ dùng cơ bản / phụ kiện
+            if (lower.Contains("đồ dùng") || lower.Contains("cơ bản") || lower.Contains("phụ kiện") || lower.Contains("cần mua"))
+            {
+                sb2.AppendLine("Khi đón mèo về lần đầu, bạn cần chuẩn bị: khay cát + cát vệ sinh, bát ăn, thức ăn phù hợp độ tuổi, đồ chơi và carrier để đưa đi khám. Meow Garden có đầy đủ:");
+                sb2.AppendLine();
+                foreach (var p in products.Take(4))
+                    sb2.AppendLine($"🛒 {p.Name} — {p.Price:N0}đ");
+                sb2.AppendLine("\nBạn đã có gì rồi chưa? Mình lọc tiếp những thứ còn thiếu cho! 😊");
+                return sb2.ToString();
+            }
+
+            // Sản phẩm tắm
+            if (lower.Contains("tắm"))
+            {
+                sb2.AppendLine("Mèo không cần tắm thường xuyên đâu — khoảng 1-2 tháng/lần là đủ, vì tắm nhiều quá sẽ khô da và mất dầu tự nhiên trên lông. Khi tắm nhớ dùng sữa tắm chuyên dụng cho mèo, không dùng của người nhé!");
+                sb2.AppendLine();
+                foreach (var p in products.Take(3))
+                    sb2.AppendLine($"🛁 {p.Name} — {p.Price:N0}đ");
+                if (!products.Any())
+                    sb2.AppendLine("🛁 Sữa tắm SOS cho mèo — liên hệ shop để hỏi giá");
+                sb2.AppendLine("\nBạn định tắm tại nhà hay mang đến grooming? Mình tư vấn thêm! 🧴");
+                return sb2.ToString();
+            }
+
+            // Thức ăn chung
+            if (lower.Contains("ăn") || lower.Contains("hạt") || lower.Contains("pate") || lower.Contains("thức ăn"))
+            {
+                sb2.AppendLine("Chế độ ăn lý tưởng cho mèo là kết hợp hạt khô (để răng và tiêu hóa tốt) + pate hoặc súp thưởng (bổ sung nước và protein). Đây là những sản phẩm đang có:");
+                sb2.AppendLine();
+                foreach (var p in products.Take(4))
+                    sb2.AppendLine($"🍽️ {p.Name} — {p.Price:N0}đ");
+                sb2.AppendLine("\nBé nhà bạn bao nhiêu tuổi? Mình tư vấn loại phù hợp hơn nhé! 😊");
+                return sb2.ToString();
+            }
+
+            // Generic — vẫn còn sản phẩm phù hợp
             if (products.Any())
             {
-                var responseText = "Chào bạn! Đây là các sản phẩm bạn đang quan tâm tại Meow Garden:\n\n";
+                sb2.AppendLine("Meow Garden có những lựa chọn này phù hợp với câu hỏi của bạn:");
+                sb2.AppendLine();
                 foreach (var p in products.Take(3))
-                {
-                    responseText += $"📦 {p.Name} — {p.Price:N0}đ\n";
-                }
-                return responseText;
+                    sb2.AppendLine($"🐾 {p.Name} — {p.Price:N0}đ" + (p.StockQuantity == 0 ? " (hết hàng)" : ""));
+                sb2.AppendLine("\nBạn muốn biết thêm về sản phẩm nào không? 🐱");
+                return sb2.ToString();
             }
 
-            if (faq != null)
-            {
-                return faq.Answer;
-            }
+            if (faq != null) return faq.Answer;
+            if (blog != null) return blog.Content;
 
-            if (blog != null)
-            {
-                return blog.Content;
-            }
-
-            return "Chào bạn! Mình là MeowBot, trợ lý đắc lực của Meow Garden. Mình có thể giúp gì cho bé mèo của bạn hôm nay? 🐱";
+            return "Chào bạn! Mình là MeowBot 🐱 Bạn đang tìm gì cho bé mèo hôm nay? Mình biết hết sản phẩm trên shop, cứ hỏi thoải mái nhé!";
         }
     }
 

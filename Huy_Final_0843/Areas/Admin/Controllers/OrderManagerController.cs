@@ -130,9 +130,9 @@ namespace Huy_Final_0843.Areas.Admin.Controllers
             return RedirectToAction(nameof(Details), new { id = orderId });
         }
 
-        // --- MỚI: RESET TOÀN BỘ DỮ LIỆU ĐƠN HÀNG (CHỈ ADMIN) ---
-        [HttpGet]
+        [HttpPost]
         [Authorize(Roles = SD.Role_Admin)]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> ClearAllOrders()
         {
             try
