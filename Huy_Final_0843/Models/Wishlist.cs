@@ -18,6 +18,7 @@ namespace Huy_Final_0843.Models
         [ForeignKey("ProductId")]
         public virtual Product Product { get; set; }
 
-        public DateTime AddedAt { get; set; } = DateTime.UtcNow;
+        [Column("AddedAt")]
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
 }

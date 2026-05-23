@@ -16,9 +16,9 @@
     @if (!Model.Any())
     {
         <div class="text-center py-5 glass-card">
-            <i class="fas fa-shopping-basket fa-4x text-secondary mb-3 opacity-50"></i>
-            <h4 class="text-secondary">Bạn chưa có đơn hàng nào.</h4>
-            <p class="text-secondary">Hãy khám phá bộ sưu tập Meow Garden ngay nhé!</p>
+            <i class="fas fa-shopping-basket fa-4x mb-3 opacity-50" style="color: var(--color-text-muted);"></i>
+            <h4 class="text-muted">Bạn chưa có đơn hàng nào.</h4>
+            <p class="text-muted">Hãy khám phá bộ sưu tập Meow Garden ngay nhé!</p>
             <a asp-controller="Home" asp-action="Index" class="btn btn-rosy px-4 mt-3">Đến Cửa Hàng</a>
         </div>
     }

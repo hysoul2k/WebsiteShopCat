@@ -1,6 +1,9 @@
 @model Huy_Final_0843.Models.Product
 @{
-    ViewData["Title"] = "Chi tiết - " + Model.Name;
+    ViewData["Title"] = Model.Name + " - Meow Shop";
+    string desc = Model.Description ?? "";
+    string shortDesc = desc.Length > 160 ? desc.Substring(0, 157) + "..." : desc;
+    string currentUrl = $"{Context.Request.Scheme}://{Context.Request.Host}{Context.Request.Path}{Context.Request.QueryString}";
 
     // Tính sao trung bình Review
     double avgRating = 0;
@@ -12,10 +15,12 @@
 }
 
 @section Meta {
+    <meta name="description" content="@shortDesc" />
+    <link rel="canonical" href="@currentUrl" />
     <meta property="og:title" content="Rước ngay bé @Model.Name về nhà!" />
-    <meta property="og:description" content="@(Model.Description?.Length > 100 ? Model.Description.Substring(0, 100) + "..." : Model.Description)" />
+    <meta property="og:description" content="@shortDesc" />
     <meta property="og:image" content="https://shopcat.vn@(Model.ImageUrl)" />
-    <meta property="og:url" content="https://shopcat.vn/Product/Details/@Model.Id" />
+    <meta property="og:url" content="@currentUrl" />
     <meta property="og:type" content="product" />
 }
 
@@ -40,14 +45,35 @@
     <!-- NỬA TRÊN: CHI TIẾT SẢN PHẨM -->
     <div class="card p-4 shadow-sm mb-5" style="background: #fff; border: 1px solid var(--sand); border-radius: 20px;">
         <div class="row">
-            <!-- Cột Trái chứa Ảnh -->
+            <!-- Cột Trái chứa Gallery Ảnh -->
             <div class="col-md-5">
-                <img src="@Model.ImageUrl" alt="@Model.Name" class="img-fluid rounded-3 shadow-sm border product-image-square product-image-target" style="max-height: 450px; border-color: var(--sand);">
+                <figure class="product-gallery">
+                    <div class="gallery-main">
+                        <img id="main-image"
+                             src="@(Model.Images?.FirstOrDefault(x => x.IsPrimary)?.Url ?? Model.ImageUrl)"
+                             alt="@Model.Name"
+                             loading="eager"
+                             class="img-fluid rounded-3 shadow-sm border product-image-square product-image-target"
+                             style="max-height: 450px; object-fit: cover; border-color: var(--sand);" />
+                    </div>
+
+                    @if (Model.Images != null && Model.Images.Count > 1)
+                    {
+                        <div class="gallery-thumbs d-flex flex-wrap gap-2 mt-3" role="list">
+                            @foreach (var img in Model.Images)
+                            {
+                                <button type="button" class="thumb btn p-0 @(img.IsPrimary ? "active" : "")" data-src="@img.Url" role="listitem" aria-label="Xem ảnh">
+                                    <img src="@img.Url" alt="@Model.Name thumbnail" loading="lazy" style="width:72px; height:72px; object-fit:cover; border-radius:8px;" />
+                                </button>
+                            }
+                        </div>
+                    }
+                </figure>
             </div>
 
             <!-- Cột Phải chứa Thông tin -->
             <div class="col-md-7 d-flex flex-column">
-                <h2 class="fw-bold mb-2" style="color: var(--charcoal); font-family: 'Playfair Display', serif;">@Model.Name</h2>
+                <h2 class="fw-bold mb-2" style="color: var(--charcoal); font-family: 'Cormorant Garamond', serif;">@Model.Name</h2>
                 
                 <div class="d-flex align-items-center mb-3">
                     <span class="badge me-3 px-3 py-2 border shadow-sm" style="background: var(--mist); color: var(--charcoal); border-color: var(--sand) !important; font-size: 13px;">
@@ -65,8 +91,8 @@
                     <span class="small fw-bold" style="color: var(--bark);">(@avgRating.ToString("0.0")/5) - @totalReviews Nhận xét</span>
                 </div>
 
-                <h1 class="mb-4" style="color: var(--terra); font-weight: 700; font-family: 'Playfair Display', serif;">@Model.Price.ToString("#,##0") <span class="fs-4" style="color: var(--bark);">VNĐ</span></h1>
-                
+                <h1 class="mb-4" style="color: var(--terra); font-weight: 700; font-family: 'Cormorant Garamond', serif;">@Model.Price.ToString("#,##0") <span class="fs-4" style="color: var(--bark);">VNĐ</span></h1>
+
                 <div class="p-3 rounded-3 mb-4" style="background: var(--mist); border-left: 5px solid var(--terra);">
                     <h6 class="fw-bold text-uppercase small mb-2" style="color: var(--bark);"><i class="fas fa-info-circle me-2"></i>Thông Tin Chi Tiết</h6>
                     <p class="m-0" style="white-space: pre-wrap; color: var(--charcoal); line-height: 1.6;">@Model.Description</p>
@@ -128,7 +154,7 @@
 
     <!-- NỬA DƯỚI: KHU VỰC ĐÁNH GIÁ VÀ REVIEW -->
     <div class="card p-4 shadow-sm" style="background: #fff; border: 1px solid var(--sand); border-radius: 20px;">
-        <h3 class="mb-4 pb-3 border-bottom" style="color: var(--charcoal); font-family: 'Playfair Display', serif;"><i class="fas fa-comments me-2" style="color: var(--gold);"></i>Đánh Giá Của Khách Hàng</h3>
+        <h3 class="mb-4 pb-3 border-bottom" style="color: var(--charcoal); font-family: 'Cormorant Garamond', serif;"><i class="fas fa-comments me-2" style="color: var(--gold);"></i>Đánh Giá Của Khách Hàng</h3>
 
         <div class="row">
             <!-- Cột Trái Hiển Thị Lịch Sử Đánh Giá -->
@@ -174,7 +200,7 @@
             <!-- Cột Phải Nhập Bình Luận Mới Đoạn Code Viết Báo Cáo -->
             <div class="col-md-5">
                 <div class="p-4 rounded-3 h-100" style="background: var(--mist); border: 1px solid var(--sand);">
-                    <h5 class="mb-4 fw-bold" style="color: var(--charcoal); font-family: 'Playfair Display', serif;">Viết Đánh Giá Của Bạn</h5>
+                    <h5 class="mb-4 fw-bold" style="color: var(--charcoal); font-family: 'Cormorant Garamond', serif;">Viết Đánh Giá Của Bạn</h5>
                     
                     @if (User.Identity?.IsAuthenticated ?? false)
                     {
@@ -232,4 +258,20 @@
             border-radius: 10px;
         }
     </style>
+    <script>
+        // Gallery thumbnail click handling
+        (function () {
+            const thumbs = document.querySelectorAll('.thumb');
+            if (!thumbs.length) return;
+            thumbs.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const src = btn.dataset.src;
+                    const main = document.getElementById('main-image');
+                    if (main && src) main.src = src;
+                    thumbs.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                });
+            });
+        })();
+    </script>
 }

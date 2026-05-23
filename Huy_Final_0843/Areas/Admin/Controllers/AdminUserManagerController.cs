@@ -87,6 +87,9 @@ namespace Huy_Final_0843.Areas.Admin.Controllers
             result = await _userManager.AddToRolesAsync(user, model.Roles.Where(x => x.IsSelected).Select(y => y.RoleName));
             if (!result.Succeeded) return View(model);
 
+            // Invalidate cookie cũ ngay lập tức — user bị kick ra khỏi session hiện tại
+            await _userManager.UpdateSecurityStampAsync(user);
+
             TempData["Success"] = "Cập nhật quyền thành công!";
             return RedirectToAction(nameof(Index));
         }

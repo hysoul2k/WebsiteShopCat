@@ -38,13 +38,88 @@
         <select asp-for="CategoryId" asp-items="ViewBag.Categories" class="form-control"></select>
     </div>
 
-    <div class="form-group">
-        <label asp-for="ImageUrl">Product Image</label>
-        <input type="file" asp-for="ImageUrl" class="form-control" />
+    <div class="form-group image-upload-section">
+        <label>Ảnh sản phẩm</label>
+
+        <div id="drop-zone" class="drop-zone">
+            <p>Kéo thả ảnh vào đây hoặc <label for="images-input">chọn file</label></p>
+            <input type="file" id="images-input" name="images" multiple accept="image/*" class="hidden" />
+        </div>
+
+        <div id="image-previews" class="image-preview-grid">
+            @if (Model?.Images != null)
+            {
+                @foreach (var img in Model.Images)
+                {
+                    <div class="preview-item" data-image-id="@img.Id">
+                        <img src="@img.Url" alt="preview" />
+                        @if (img.IsPrimary)
+                        {
+                            <span class="badge-primary">Ảnh chính</span>
+                        }
+                        else
+                        {
+                            <button type="button" class="btn-set-primary" onclick="setPrimary(@img.Id)">Đặt làm ảnh chính</button>
+                        }
+                        <button type="button" class="btn-delete-img" onclick="deleteImage(@img.Id)">✕</button>
+                    </div>
+                }
+            }
+        </div>
     </div>
 
     <br />
 
     <button type="submit" class="btn btn-primary">Add</button>
-
 </form>
+
+@section Scripts {
+    <script>
+        document.getElementById("images-input").addEventListener("change", function() {
+            Array.from(this.files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    const div = document.createElement("div");
+                    div.className = "preview-item new-upload";
+                    div.innerHTML = `<img src="${e.target.result}"><span>Mới</span>`;
+                    document.getElementById("image-previews").appendChild(div);
+                };
+                reader.readAsDataURL(file);
+            });
+        });
+
+        const dropZone = document.getElementById("drop-zone");
+        const imagesInput = document.getElementById("images-input");
+
+        dropZone.addEventListener("click", () => imagesInput.click());
+
+        dropZone.addEventListener("dragover", event => {
+            event.preventDefault();
+            dropZone.classList.add("drag-over");
+        });
+
+        dropZone.addEventListener("dragleave", () => dropZone.classList.remove("drag-over"));
+
+        dropZone.addEventListener("drop", event => {
+            event.preventDefault();
+            dropZone.classList.remove("drag-over");
+            if (event.dataTransfer.files.length) {
+                imagesInput.files = event.dataTransfer.files;
+                const changeEvent = new Event("change");
+                imagesInput.dispatchEvent(changeEvent);
+            }
+        });
+
+        async function deleteImage(id) {
+            if (!confirm("Xóa ảnh này?")) return;
+            const res = await fetch(`/Admin/Product/DeleteImage/${id}`, { method: "POST" });
+            if ((await res.json()).success)
+                document.querySelector(`[data-image-id="${id}"]`).remove();
+        }
+
+        async function setPrimary(id) {
+            await fetch(`/Admin/Product/SetPrimaryImage/${id}`, { method: "POST" });
+            location.reload();
+        }
+    </script>
+}

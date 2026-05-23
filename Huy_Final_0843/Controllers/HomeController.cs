@@ -82,6 +82,31 @@ namespace Huy_Final_0843.Controllers
             
             ViewBag.Categories = await _context.Categories.ToListAsync();
 
+            // Banner: 1 sản phẩm nổi bật mỗi danh mục, ưu tiên có ảnh và còn hàng
+            var bannerProducts = await _context.Products
+                .AsNoTracking()
+                .Include(p => p.Category)
+                .Where(p => p.StockQuantity > 0 && p.ImageUrl != null && p.ImageUrl != "")
+                .GroupBy(p => p.CategoryId)
+                .Select(g => g.OrderByDescending(p => p.Id).First())
+                .Take(3)
+                .ToListAsync();
+
+            if (bannerProducts.Count < 3)
+            {
+                // Fallback nếu ít hơn 3 category
+                var fallback = await _context.Products
+                    .AsNoTracking()
+                    .Include(p => p.Category)
+                    .Where(p => p.ImageUrl != null && p.ImageUrl != "")
+                    .OrderByDescending(p => p.Id)
+                    .Take(3)
+                    .ToListAsync();
+                bannerProducts = fallback;
+            }
+
+            ViewBag.BannerProducts = bannerProducts;
+
             return View(products);
         }
 

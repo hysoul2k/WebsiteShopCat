@@ -1,35 +1,40 @@
-using Huy_Final_0843.Extensions; // Hoặc .Helpers tùy theo folder chứa SessionExtensions của bạn
+using Huy_Final_0843.Extensions;
 using Huy_Final_0843.Models;
 using Huy_Final_0843.Repositories;
+using Huy_Final_0843.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Huy_Final_0843.Hubs;
 
 namespace Huy_Final_0843.Controllers
 {
-    [Authorize] // Chỉ cho phép người dùng đã đăng nhập mới được truy cập giỏ hàng/thanh toán
     public class ShoppingCartController : Controller
     {
         private readonly IProductRepository _productRepository;
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IHubContext<OrderHub> _hubContext;
+        private readonly IEmailSender _emailSender;
 
         public ShoppingCartController(
             ApplicationDbContext context,
             UserManager<ApplicationUser> userManager,
             IProductRepository productRepository,
-            IHubContext<OrderHub> hubContext)
+            IHubContext<OrderHub> hubContext,
+            IEmailSender emailSender)
         {
             _productRepository = productRepository;
             _context = context;
             _userManager = userManager;
             _hubContext = hubContext;
+            _emailSender = emailSender;
         }
 
         // 1. Hiển thị trang giỏ hàng
+        [AllowAnonymous]
         public IActionResult Index()
         {
             var cart = HttpContext.Session.GetObjectFromJson<ShoppingCart>("Cart") ?? new ShoppingCart();
@@ -135,6 +140,7 @@ namespace Huy_Final_0843.Controllers
         // --- CHỨC NĂNG THANH TOÁN (CHECKOUT) ---
 
         // Hiển thị form nhập địa chỉ
+        [Authorize]
         public IActionResult Checkout()
         {
             return View(new Order());
@@ -142,6 +148,7 @@ namespace Huy_Final_0843.Controllers
 
         // Xử lý lưu đơn hàng
         [HttpPost]
+        [Authorize]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Checkout(Order order)
         {
@@ -183,7 +190,7 @@ namespace Huy_Final_0843.Controllers
             if (!string.IsNullOrEmpty(activeVoucherCode))
             {
                 var dbVoucher = _context.Vouchers.FirstOrDefault(v => v.Code == activeVoucherCode);
-                if (dbVoucher != null && dbVoucher.UsedCount < dbVoucher.MaxUsage && dbVoucher.ExpiryDate >= DateTime.UtcNow.AddHours(7))
+                if (dbVoucher != null && (dbVoucher.MaxUsage == 0 || dbVoucher.UsedCount < dbVoucher.MaxUsage) && dbVoucher.ExpiryDate >= DateTime.UtcNow.AddHours(7))
                 {
                     decimal discountVal = rootTotal * ((decimal)dbVoucher.DiscountPercent / 100);
                     finalTotal = rootTotal - discountVal;
@@ -222,12 +229,21 @@ namespace Huy_Final_0843.Controllers
             // --- SIGNALR: THÔNG BÁO CHO ADMIN ---
             string orderTime = DateTime.UtcNow.AddHours(7).ToString("HH:mm:ss");
             await _hubContext.Clients.All.SendAsync("ReceiveNewOrder", order.Id.ToString(), user.FullName ?? "Khách hàng", "Meow Garden", orderTime);
-            // ------------------------------------
 
             // Xóa sạch giỏ hàng và Phiên Mã Giảm
             HttpContext.Session.Remove("Cart");
             HttpContext.Session.Remove("VoucherCode");
             HttpContext.Session.Remove("DiscountPercent");
+
+            // --- EMAIL XÁC NHẬN ĐƠN HÀNG ---
+            try
+            {
+                var viewOrderUrl = Url.Action("MyOrders", "Order", null, Request.Scheme) ?? "";
+                var subject = $"Meow Garden - Xác nhận đơn hàng #{order.Id}";
+                var body = EmailTemplateHelper.GetOrderConfirmationTemplate(order.Id, order.TotalPrice, order.PaymentMethod, viewOrderUrl);
+                await _emailSender.SendEmailAsync(user.Email ?? "", subject, body);
+            }
+            catch { /* Email lỗi không chặn flow đặt hàng */ }
 
             if (order.PaymentMethod == "BankTransfer")
             {
@@ -238,13 +254,14 @@ namespace Huy_Final_0843.Controllers
                 order.PaymentStatus = "COD";
                 _context.Orders.Update(order);
                 await _context.SaveChangesAsync();
-                
-                return RedirectToAction("Index", "Home");
+
+                return View("OrderCompleted", order.Id);
             }
         }
 
         // --- ĐỘNG CƠ MÃ GIẢM GIÁ (AJAX API) ---
         [HttpPost]
+        [AllowAnonymous]
         public IActionResult ApplyVoucher([FromBody] string voucherCode)
         {
             if (string.IsNullOrWhiteSpace(voucherCode)) 
@@ -258,7 +275,7 @@ namespace Huy_Final_0843.Controllers
             if (checkVoucher.ExpiryDate < DateTime.UtcNow)
                 return Json(new { success = false, message = "Mã đã quá hạn sử dụng!" });
                 
-            if (checkVoucher.UsedCount >= checkVoucher.MaxUsage)
+            if (checkVoucher.MaxUsage > 0 && checkVoucher.UsedCount >= checkVoucher.MaxUsage)
                 return Json(new { success = false, message = "Mã đã hết lượt dùng!" });
 
             // Mã Hợp Lê -> Ghim Vào Ký Ức Hệ Thống (Session)
@@ -272,5 +289,30 @@ namespace Huy_Final_0843.Controllers
             });
         }
 
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult GetAvailableVouchers()
+        {
+            var cart = HttpContext.Session.GetObjectFromJson<ShoppingCart>("Cart") ?? new ShoppingCart();
+            decimal cartTotal = cart.Items.Sum(i => i.Price * i.Quantity);
+            DateTime now = DateTime.Now;
+
+            var availableVouchers = _context.Vouchers
+                .Where(v => v.IsActive
+                    && v.ExpiryDate >= now
+                    && (v.MaxUsage == 0 || v.UsedCount < v.MaxUsage)
+                    && v.MinOrderAmount <= cartTotal)
+                .Select(v => new
+                {
+                    code = v.Code,
+                    description = $"Giảm {v.DiscountPercent}% cho đơn từ {v.MinOrderAmount:N0} vnđ", 
+                    discountDisplay = v.DiscountType == "Percent"
+                        ? $"{v.DiscountPercent}%"
+                        : $"{v.DiscountValue}"
+                })
+                .ToList();
+
+            return Json(availableVouchers);
+        }
     }
 }

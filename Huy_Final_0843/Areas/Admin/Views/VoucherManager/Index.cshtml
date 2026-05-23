@@ -1,0 +1,120 @@
+@model IEnumerable<Huy_Final_0843.Models.Voucher>
+@{
+    ViewData["Title"] = "Quản lý mã giảm giá";
+}
+
+<div class="d-flex justify-content-between mb-3">
+    <h4>Quản lý mã giảm giá (@Model.Count() mã)</h4>
+    <a asp-action="Create" class="btn btn-primary">+ Tạo mã mới</a>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+@if (!Model.Any())
+{
+    <div class="text-center py-5">
+        <p>Chưa có mã giảm giá nào.</p>
+        <a asp-action="Create" class="btn btn-primary">Tạo mã đầu tiên</a>
+    </div>
+}
+else
+{
+    @Html.AntiForgeryToken()
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th>Mã</th>
+                <th>Loại</th>
+                <th>Giá trị</th>
+                <th>Đơn tối thiểu</th>
+                <th>Đã dùng / Giới hạn</th>
+                <th>Hết hạn</th>
+                <th>Trạng thái</th>
+                <th>Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var v in Model)
+            {
+                <tr id="row-@v.Id" class="@(v.IsActive ? string.Empty : "table-secondary")">
+                    <td><code>@v.Code</code></td>
+                    <td>@(v.DiscountType?.Equals("Percent", StringComparison.OrdinalIgnoreCase) == true ? "%" : "Tiền cố định")</td>
+                    <td>
+                        @(v.DiscountType?.Equals("Percent", StringComparison.OrdinalIgnoreCase) == true
+                            ? v.DiscountValue + "%"
+                            : v.DiscountValue.ToString("N0") + " ₫")
+                    </td>
+                    <td>@v.MinOrderAmount.ToString("N0") ₫</td>
+                    <td>@v.UsedCount / @(v.UsageLimit == 0 ? "∞" : v.UsageLimit.ToString())</td>
+                    <td class="@(v.ExpiryDate < DateTime.Now ? "text-danger fw-bold" : string.Empty)">
+                        @v.ExpiryDate.ToString("dd/MM/yyyy")
+                        @if (v.ExpiryDate < DateTime.Now)
+                        {
+                            <span>(Hết hạn)</span>
+                        }
+                    </td>
+                    <td>
+                        <button class="btn btn-sm @(v.IsActive ? "btn-success" : "btn-secondary")" type="button" onclick="toggleActive(@v.Id, this)">
+                            @(v.IsActive ? "✅ Đang bật" : "❌ Tắt")
+                        </button>
+                    </td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@v.Id" class="btn btn-sm btn-warning me-1">Sửa</a>
+                        <button type="button" class="btn btn-sm btn-danger" onclick="deleteVoucher(@v.Id)">Xóa</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@section Scripts {
+    <script>
+        function getRequestVerificationToken() {
+            return document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+        }
+
+        async function toggleActive(id, btn) {
+            try {
+                const response = await fetch(`/Admin/VoucherManager/ToggleActive/${id}`, {
+                    method: 'POST',
+                    headers: {
+                        'RequestVerificationToken': getRequestVerificationToken()
+                    }
+                });
+                const data = await response.json();
+                if (!data.success) {
+                    alert('Cập nhật trạng thái không thành công.');
+                    return;
+                }
+                btn.textContent = data.isActive ? '✅ Đang bật' : '❌ Tắt';
+                btn.className = `btn btn-sm ${data.isActive ? 'btn-success' : 'btn-secondary'}`;
+            } catch (error) {
+                alert('Có lỗi khi cập nhật trạng thái voucher.');
+            }
+        }
+
+        async function deleteVoucher(id) {
+            if (!confirm('Bạn có chắc muốn xóa voucher này?')) return;
+            try {
+                const response = await fetch(`/Admin/VoucherManager/Delete/${id}`, {
+                    method: 'POST',
+                    headers: {
+                        'RequestVerificationToken': getRequestVerificationToken()
+                    }
+                });
+                const data = await response.json();
+                if (data.success) {
+                    document.getElementById(`row-${id}`)?.remove();
+                } else {
+                    alert('Xóa không thành công.');
+                }
+            } catch (error) {
+                alert('Có lỗi khi xóa voucher.');
+            }
+        }
+    </script>
+}

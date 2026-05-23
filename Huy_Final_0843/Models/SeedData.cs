@@ -118,6 +118,32 @@ namespace Huy_Final_0843.Models
 
                 context.Products.AddRange(products);
                 context.SaveChanges();
+
+                // ==========================================
+                // 3. Seed some sample Vouchers for testing
+                // ==========================================
+                var now = DateTime.UtcNow;
+                var seedVouchers = new List<Voucher>
+                {
+                    new Voucher { Code = "MEOW10", DiscountType = "Percent", DiscountPercent = 10, MinOrderAmount = 0, MaxUsage = 100, UsedCount = 0, ExpiryDate = new DateTime(2026, 12, 31), IsActive = true },
+                    new Voucher { Code = "MEOW50K", DiscountType = "Fixed", DiscountPercent = 50000, MinOrderAmount = 200000, MaxUsage = 50, UsedCount = 0, ExpiryDate = new DateTime(2026, 12, 31), IsActive = true },
+                    new Voucher { Code = "WELCOME15", DiscountType = "Percent", DiscountPercent = 15, MinOrderAmount = 100000, MaxUsage = 200, UsedCount = 0, ExpiryDate = new DateTime(2026, 9, 30), IsActive = true },
+                    new Voucher { Code = "KITTY20", DiscountType = "Percent", DiscountPercent = 20, MinOrderAmount = 300000, MaxUsage = 30, UsedCount = 0, ExpiryDate = new DateTime(2026, 8, 1), IsActive = true },
+                    new Voucher { Code = "FREESHIP", DiscountType = "Fixed", DiscountPercent = 30000, MinOrderAmount = 150000, MaxUsage = 0, UsedCount = 0, ExpiryDate = new DateTime(2026, 6, 30), IsActive = true }
+                };
+
+                foreach (var voucher in seedVouchers)
+                {
+                    if (!context.Vouchers.Any(v => v.Code == voucher.Code))
+                    {
+                        context.Vouchers.Add(voucher);
+                    }
+                }
+
+                if (context.ChangeTracker.HasChanges())
+                {
+                    context.SaveChanges();
+                }
             }
         }
     }
