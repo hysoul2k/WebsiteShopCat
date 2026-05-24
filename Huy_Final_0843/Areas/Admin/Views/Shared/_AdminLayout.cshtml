@@ -206,8 +206,13 @@
                 <li class="nav-item mt-3 px-3 mb-2 small text-uppercase fw-bold" style="color: #6c757d;">Cửa Hàng</li>
                 
                 <li class="nav-item">
-                    <a class="nav-link" asp-area="Admin" asp-controller="Product" asp-action="Index">
-                        <i class="fas fa-box-open me-2"></i> Kho Thú Cưng
+                    <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Cat" ? "active" : "")" asp-area="Admin" asp-controller="Cat" asp-action="Index">
+                        <i class="fas fa-cat me-2"></i> Quản Lý Mèo
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Product" ? "active" : "")" asp-area="Admin" asp-controller="Product" asp-action="Index">
+                        <i class="fas fa-box-open me-2"></i> Sản Phẩm
                     </a>
                 </li>
                 <li class="nav-item">

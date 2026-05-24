@@ -1,21 +1,53 @@
 @model IEnumerable<Huy_Final_0843.Models.Product>
 @{
-    ViewData["Title"] = "Quản lý Thú Cưng";
+    ViewData["Title"] = "Quản lý Sản Phẩm";
+
+    string GetProductCode(Huy_Final_0843.Models.Product p) {
+        var cat = p.Category?.Name?.ToLower() ?? "";
+        string prefix = cat.Contains("thức ăn") ? "FOOD" :
+                        cat.Contains("dụng cụ") || cat.Contains("phụ kiện") ? "ACC" : "PRD";
+        return $"{prefix}-{p.Id:000}";
+    }
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h3 class="fw-bold m-0"><i class="fas fa-list me-2"></i>Danh Sách Thú Cưng</h3>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="fw-bold m-0"><i class="fas fa-box-open me-2"></i>Danh Sách Sản Phẩm</h3>
     @if (User.IsInRole(SD.Role_Admin) || User.IsInRole(SD.Role_Staff)) {
-        <a asp-action="Add" class="btn btn-neon px-4"><i class="fas fa-plus me-2"></i>THÊM THÚ CƯNG</a>
+        <a asp-action="Add" class="btn btn-neon px-4"><i class="fas fa-plus me-2"></i>THÊM SẢN PHẨM</a>
     }
+</div>
+
+<div class="mb-3 p-3 rounded-3 border border-secondary d-flex flex-wrap gap-3 align-items-center" style="background:rgba(255,255,255,0.03);">
+    <div class="d-flex align-items-center gap-2">
+        <label class="text-secondary small mb-0 text-nowrap"><i class="fas fa-tag me-1"></i>Loại:</label>
+        <select id="categoryFilter" class="form-select form-select-sm bg-dark border-secondary text-white" style="width:auto;">
+            <option value="">Tất cả</option>
+            <option value="FOOD-">🍖 Thức ăn</option>
+            <option value="ACC-">🎀 Dụng cụ & Phụ kiện</option>
+        </select>
+    </div>
+
+    <div class="d-flex align-items-center gap-2">
+        <label class="text-secondary small mb-0 text-nowrap"><i class="fas fa-warehouse me-1"></i>Tồn kho:</label>
+        <select id="stockFilter" class="form-select form-select-sm bg-dark border-secondary text-white" style="width:auto;">
+            <option value="">Tất cả</option>
+            <option value="available">✅ Còn hàng</option>
+            <option value="out">❌ Hết hàng</option>
+        </select>
+    </div>
+
+    <button id="resetFilters" class="btn btn-sm btn-outline-secondary ms-auto">
+        <i class="fas fa-rotate-left me-1"></i>Xóa lọc
+    </button>
 </div>
 
 <div class="table-responsive">
     <table id="productTable" class="table table-dark table-hover border-secondary">
         <thead>
             <tr class="text-secondary text-uppercase small">
-                <th>Thú Cưng</th>
-                <th>Thông Tin Chi Tiết</th>
+                <th>Mã</th>
+                <th>Ảnh</th>
+                <th>Thông Tin</th>
                 <th class="text-center">Kho</th>
                 <th class="text-center">Đơn Giá</th>
                 <th class="text-end">Quản Lý</th>
@@ -24,28 +56,29 @@
         <tbody>
             @foreach (var item in Model) {
                 <tr>
-                    <td style="width: 100px;">
+                    <td class="align-middle" style="white-space:nowrap;">
+                        <span class="badge bg-dark border border-secondary text-secondary font-monospace p-2">@GetProductCode(item)</span>
+                    </td>
+                    <td style="width:90px;">
                         @if (!string.IsNullOrEmpty(item.ImageUrl)) {
-                            <img src="@item.ImageUrl" class="rounded-3 shadow product-image-square" style="width:80px; border: 1px solid #3d444d;" />
+                            <img src="@item.ImageUrl" class="rounded-3 shadow" style="width:75px;height:75px;object-fit:cover;" />
                         }
                     </td>
                     <td>
-                        <div class="fw-bold text-white fs-5">@item.Name</div>
-                        <div class="text-secondary small">@item.Description</div>
+                        <div class="fw-bold fs-5" style="color:#000;">@item.Name</div>
+                        <div class="small" style="color:#000;">@item.Category?.Name</div>
+                        <div class="small" style="color:#000;">@item.Description</div>
                     </td>
-                    <td class="text-center align-middle">
-                        @if (item.StockQuantity > 0)
-                        {
-                            <span class="badge bg-success bg-opacity-25 text-success border border-success p-2">@item.StockQuantity Bé</span>
-                        }
-                        else
-                        {
-                            <span class="badge bg-danger bg-opacity-25 text-danger border border-danger p-2">Hết Số Lượng</span>
+                    <td class="text-center align-middle" data-stock="@item.StockQuantity">
+                        @if (item.StockQuantity > 0) {
+                            <span class="badge bg-success bg-opacity-25 text-white border border-success p-2">@item.StockQuantity</span>
+                        } else {
+                            <span class="badge bg-danger bg-opacity-25 text-white border border-danger p-2">Hết hàng</span>
                         }
                     </td>
                     <td class="text-center align-middle">
-                        <span class="text-white fw-bold">@item.Price.ToString("N0")</span> 
-                        <span style="color: var(--accent-color);">đ</span>
+                        <span class="fw-bold" style="color:#fff !important;">@item.Price.ToString("N0")</span>
+                        <span style="color:#fff !important;">đ</span>
                     </td>
                     <td class="text-end">
                         <div class="btn-group shadow-sm">
@@ -65,14 +98,27 @@
 @section Scripts {
     <script>
         $(document).ready(function () {
-            $('#productTable').DataTable({
-                "language": {
-                    "search": "",
-                    "searchPlaceholder": "Tìm kiếm thú cưng...",
-                    "paginate": { "previous": "Trước", "next": "Sau" }
-                }
+            $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
+                var val = $('#stockFilter').val();
+                if (!val) return true;
+                var qty = parseInt($('#productTable tbody tr').eq(dataIndex).find('td[data-stock]').attr('data-stock') || '0', 10);
+                return val === 'available' ? qty > 0 : qty === 0;
+            });
+
+            var table = $('#productTable').DataTable({
+                "language": { "search": "", "searchPlaceholder": "Tìm kiếm mã / tên...", "paginate": { "previous": "Trước", "next": "Sau" } },
+                "columnDefs": [{ "orderable": false, "targets": [1, 5] }]
             });
             $('.dataTables_filter input').addClass('form-control bg-dark border-secondary text-white rounded-pill px-4 mb-3');
+
+            $('#categoryFilter').on('change', function () {
+                table.column(0).search(this.value ? '^' + this.value : '', true, false).draw();
+            });
+            $('#stockFilter').on('change', function () { table.draw(); });
+            $('#resetFilters').on('click', function () {
+                $('#categoryFilter, #stockFilter').val('');
+                table.column(0).search('').draw();
+            });
         });
     </script>
 }

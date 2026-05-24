@@ -1,0 +1,76 @@
+@model Huy_Final_0843.Models.Cat
+@{
+    ViewData["Title"] = "Cập Nhật Mèo";
+    var catCode = $"CAT-{Model.Id:000}";
+}
+
+<div class="d-flex align-items-center gap-3 mb-4">
+    <a asp-action="Index" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left"></i></a>
+    <h3 class="fw-bold m-0"><i class="fas fa-pen-to-square me-2"></i>Cập Nhật Mèo</h3>
+</div>
+
+<div class="glass-card" style="max-width:700px;">
+    <form asp-action="Update" asp-route-id="@Model.Id" method="post" enctype="multipart/form-data">
+        <input type="hidden" asp-for="Id" />
+
+        <div class="form-group mb-3">
+            <label class="fw-bold text-secondary small"><i class="fas fa-hashtag me-1"></i>Mã Mèo</label>
+            <input type="text" value="@catCode" class="form-control font-monospace fw-bold" style="color:#64748b;background:#f8fafc;" readonly />
+        </div>
+
+        <div class="form-group mb-3">
+            <label asp-for="Name" class="fw-bold">Tên mèo</label>
+            <input asp-for="Name" class="form-control" />
+            <span asp-validation-for="Name" class="text-danger small"></span>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label asp-for="Price" class="fw-bold">Giá (đ)</label>
+                <input asp-for="Price" type="number" min="0" class="form-control" />
+                <span asp-validation-for="Price" class="text-danger small"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Age" class="fw-bold">Tuổi (tháng)</label>
+                <input asp-for="Age" type="number" min="0" max="360" class="form-control" />
+                <span asp-validation-for="Age" class="text-danger small"></span>
+            </div>
+        </div>
+
+        <div class="form-group mb-3">
+            <label asp-for="Gender" class="fw-bold">Giới tính</label>
+            <select asp-for="Gender" class="form-select">
+                <option value="Không rõ">❓ Không rõ</option>
+                <option value="Đực">♂ Đực</option>
+                <option value="Cái">♀ Cái</option>
+            </select>
+            <span asp-validation-for="Gender" class="text-danger small"></span>
+        </div>
+
+        <div class="form-group mb-3">
+            <label asp-for="Description" class="fw-bold">Mô tả</label>
+            <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+            <span asp-validation-for="Description" class="text-danger small"></span>
+        </div>
+
+        <div class="form-group mb-3">
+            <label class="fw-bold">Ảnh mèo</label>
+            @if (!string.IsNullOrEmpty(Model.ImageUrl)) {
+                <div class="mb-2">
+                    <img src="@Model.ImageUrl" class="rounded-3 shadow" style="width:100px;height:100px;object-fit:cover;" />
+                    <div class="text-secondary small mt-1">Ảnh hiện tại — chọn file mới để thay thế</div>
+                </div>
+            }
+            <input type="file" name="imageUrl" accept="image/*" class="form-control" />
+        </div>
+
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-warning px-4 text-dark fw-bold"><i class="fas fa-save me-2"></i>Lưu thay đổi</button>
+            <a asp-action="Index" class="btn btn-outline-secondary px-4">Hủy</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}

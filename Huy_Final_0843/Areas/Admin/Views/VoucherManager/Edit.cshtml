@@ -58,12 +58,19 @@
                     <span asp-validation-for="ExpiryDate" class="text-danger"></span>
                 </div>
 
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <label asp-for="IsActive" class="form-label">Trạng thái</label>
                     <select asp-for="IsActive" class="form-select bg-dark border-secondary text-white">
                         <option value="true">Kích hoạt</option>
                         <option value="false">Vô hiệu</option>
                     </select>
+                </div>
+                <div class="col-md-2">
+                    <div class="form-check mt-4">
+                        <input asp-for="IsPrivate" class="form-check-input" type="checkbox" />
+                        <label asp-for="IsPrivate" class="form-check-label">Riêng tư</label>
+                    </div>
+                    <small class="text-muted">Ẩn khỏi danh sách công khai</small>
                 </div>
 
                 <div class="col-md-12">

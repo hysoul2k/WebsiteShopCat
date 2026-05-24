@@ -41,6 +41,9 @@ namespace Huy_Final_0843.Models
 
         public bool IsActive { get; set; } = true;
 
+        // Public: hiện trong danh sách. Private: ẩn, chỉ nhập tay.
+        public bool IsPrivate { get; set; } = false;
+
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
 }

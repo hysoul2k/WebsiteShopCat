@@ -1,4 +1,4 @@
-@model IEnumerable<Huy_Final_0843.Models.Product>
+@model IEnumerable<Huy_Final_0843.ViewModels.ShopItemViewModel>
 @{
     ViewData["Title"] = "Trang Chủ";
 }
@@ -138,7 +138,7 @@
 
                 <label class="filter-label">Tìm theo tên</label>
                 <input type="text" name="searchString" value="@ViewBag.SearchString" class="filter-input" placeholder="Ví dụ: Pate Whiskas...">
-                
+
                 <div class="filter-divider"></div>
 
                 <label class="filter-label">Khoảng giá</label>
@@ -147,6 +147,21 @@
                     <span class="price-sep">-</span>
                     <input type="number" name="maxPrice" value="@ViewBag.MaxPrice" class="price-input" placeholder="Đến" step="10000">
                 </div>
+
+                @{
+                    bool showingCats = ViewBag.CurrentCategory == null || ViewBag.CurrentCategory == 0 || ViewBag.CurrentCategory == 1;
+                }
+                @if (showingCats)
+                {
+                    <div class="filter-divider"></div>
+                    <label class="filter-label">Giới tính mèo</label>
+                    <select name="gender" class="filter-input" style="cursor:pointer;">
+                        <option value="" selected="@(string.IsNullOrEmpty(ViewBag.Gender as string))">Tất cả</option>
+                        <option value="Đực"     selected="@(ViewBag.Gender == "Đực")">♂ Đực</option>
+                        <option value="Cái"     selected="@(ViewBag.Gender == "Cái")">♀ Cái</option>
+                        <option value="Không rõ" selected="@(ViewBag.Gender == "Không rõ")">❓ Không rõ</option>
+                    </select>
+                }
 
                 <button type="submit" class="btn-apply mt-4">Áp dụng lọc</button>
                 <a asp-action="Index" class="btn-clear">Xóa bộ lọc</a>
@@ -194,43 +209,65 @@
             <div class="product-grid">
                 @foreach (var item in Model)
                 {
-                    <div class="product-card position-relative stock-status-container shadow-earthy-hover" data-product-id="@item.Id">
-                        <a href="/Product/Details/@item.Id" class="product-img-wrap product-image-target">
-                            @if (item.StockQuantity <= 0)
+                    var detailUrl = item.IsCat ? $"/Cats/Details/{item.Id}" : $"/Product/Details/{item.Id}";
+                    <div class="product-card position-relative shadow-earthy-hover" data-product-id="@item.Id">
+                        <a href="@detailUrl" class="product-img-wrap product-image-target">
+                            @if (item.IsCat)
                             {
-                                <div class="badge-stock danger stock-badge">Hết Hàng</div>
-                            }
-                            else if (item.StockQuantity < 10)
-                            {
-                                <div class="badge-stock warning stock-badge">Sắp Hết (@item.StockQuantity)</div>
+                                @if (item.Gender == "Đực") {
+                                    <div class="badge-stock stock-badge" style="background:#dbeafe;color:#1d4ed8;">♂ Đực</div>
+                                } else if (item.Gender == "Cái") {
+                                    <div class="badge-stock stock-badge" style="background:#fce7f3;color:#be185d;">♀ Cái</div>
+                                } else {
+                                    <div class="badge-stock stock-badge" style="background:#f1f5f9;color:#64748b;">Mèo Cảnh</div>
+                                }
                             }
                             else
                             {
-                                <div class="badge-stock stock-badge">Còn Hàng (@item.StockQuantity)</div>
+                                @if (item.StockQuantity <= 0) {
+                                    <div class="badge-stock danger stock-badge">Hết Hàng</div>
+                                } else if (item.StockQuantity < 10) {
+                                    <div class="badge-stock warning stock-badge">Sắp Hết (@item.StockQuantity)</div>
+                                } else {
+                                    <div class="badge-stock stock-badge">Còn Hàng (@item.StockQuantity)</div>
+                                }
                             }
                             <img src="@item.ImageUrl" alt="@item.Name">
                         </a>
-                        
+
                         <div class="product-body">
-                            @{
-                                double avgRating = item.Reviews != null && item.Reviews.Any() ? item.Reviews.Average(r => r.Rating) : 0;
-                                int totalReviews = item.Reviews != null ? item.Reviews.Count : 0;
+                            @if (item.IsCat)
+                            {
+                                <div class="stars">
+                                    <span style="font-size:12px;color:var(--color-primary);">
+                                        <i class="fas fa-cat me-1"></i>
+                                        @(item.Age == 0 ? "Dưới 1 tháng" : $"{item.Age} tháng tuổi")
+                                    </span>
+                                </div>
                             }
-                            <div class="stars">
-                                @for (int i = 1; i <= 5; i++)
-                                {
-                                    if (i <= Math.Round(avgRating)) { <i class="fas fa-star star filled"></i> }
-                                    else { <i class="fas fa-star star"></i> }
-                                }
-                                <span class="review-count">(@totalReviews)</span>
-                            </div>
-                            
-                            <a href="/Product/Details/@item.Id" class="product-name">@item.Name</a>
-                            
+                            else
+                            {
+                                <div class="stars">
+                                    @for (int i = 1; i <= 5; i++) {
+                                        if (i <= Math.Round(item.AvgRating)) { <i class="fas fa-star star filled"></i> }
+                                        else { <i class="fas fa-star star"></i> }
+                                    }
+                                    <span class="review-count">(@item.TotalReviews)</span>
+                                </div>
+                            }
+
+                            <a href="@detailUrl" class="product-name">@item.Name</a>
+
                             <div class="product-footer">
-                                <div class="price">@item.Price.ToString("#,##0")<small style="font-size:12px; font-weight:400; font-family:'DM Sans', sans-serif;">đ</small></div>
-                                
-                                @if (item.StockQuantity > 0)
+                                <div class="price">@item.Price.ToString("#,##0")<small style="font-size:12px;font-weight:400;font-family:'DM Sans',sans-serif;">đ</small></div>
+
+                                @if (item.IsCat)
+                                {
+                                    <a href="@detailUrl" class="add-to-cart">
+                                        <i class="fas fa-cat" style="width:14px;"></i> Xem Chi Tiết
+                                    </a>
+                                }
+                                else if (item.StockQuantity > 0)
                                 {
                                     <div class="qty-add add-to-cart-form">
                                         <div class="qty-control d-none">
@@ -244,9 +281,7 @@
                                 }
                                 else
                                 {
-                                    <a href="/Product/Details/@item.Id" class="add-to-cart" style="background: var(--bark);">
-                                        Chi tiết
-                                    </a>
+                                    <a href="@detailUrl" class="add-to-cart" style="background:var(--bark);">Chi tiết</a>
                                 }
                             </div>
                         </div>
@@ -260,21 +295,21 @@
                 <div class="pagination-custom">
                     @if (ViewBag.CurrentPage > 1)
                     {
-                        <a href="@Url.Action("Index", new { page = ViewBag.CurrentPage - 1, searchString = ViewBag.SearchString, categoryId = ViewBag.CurrentCategory, minPrice = ViewBag.MinPrice, maxPrice = ViewBag.MaxPrice })" class="page-btn">
+                        <a href="@Url.Action("Index", new { page = ViewBag.CurrentPage - 1, searchString = ViewBag.SearchString, categoryId = ViewBag.CurrentCategory, minPrice = ViewBag.MinPrice, maxPrice = ViewBag.MaxPrice, gender = ViewBag.Gender })" class="page-btn">
                             <i class="fas fa-chevron-left"></i>
                         </a>
                     }
                     
                     @for (int i = 1; i <= ViewBag.TotalPages; i++)
                     {
-                        <a href="@Url.Action("Index", new { page = i, searchString = ViewBag.SearchString, categoryId = ViewBag.CurrentCategory, minPrice = ViewBag.MinPrice, maxPrice = ViewBag.MaxPrice })" class="page-btn @(i == ViewBag.CurrentPage ? "active" : "")">
+                        <a href="@Url.Action("Index", new { page = i, searchString = ViewBag.SearchString, categoryId = ViewBag.CurrentCategory, minPrice = ViewBag.MinPrice, maxPrice = ViewBag.MaxPrice, gender = ViewBag.Gender })" class="page-btn @(i == ViewBag.CurrentPage ? "active" : "")">
                             @i
                         </a>
                     }
 
                     @if (ViewBag.CurrentPage < ViewBag.TotalPages)
                     {
-                        <a href="@Url.Action("Index", new { page = ViewBag.CurrentPage + 1, searchString = ViewBag.SearchString, categoryId = ViewBag.CurrentCategory, minPrice = ViewBag.MinPrice, maxPrice = ViewBag.MaxPrice })" class="page-btn">
+                        <a href="@Url.Action("Index", new { page = ViewBag.CurrentPage + 1, searchString = ViewBag.SearchString, categoryId = ViewBag.CurrentCategory, minPrice = ViewBag.MinPrice, maxPrice = ViewBag.MaxPrice, gender = ViewBag.Gender })" class="page-btn">
                             <i class="fas fa-chevron-right"></i>
                         </a>
                     }

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using Huy_Final_0843.Hubs;
 
 namespace Huy_Final_0843.Controllers
@@ -192,15 +193,27 @@ namespace Huy_Final_0843.Controllers
                 var dbVoucher = _context.Vouchers.FirstOrDefault(v => v.Code == activeVoucherCode);
                 if (dbVoucher != null && (dbVoucher.MaxUsage == 0 || dbVoucher.UsedCount < dbVoucher.MaxUsage) && dbVoucher.ExpiryDate >= DateTime.UtcNow.AddHours(7))
                 {
-                    decimal discountVal = rootTotal * ((decimal)dbVoucher.DiscountPercent / 100);
-                    finalTotal = rootTotal - discountVal;
+                    bool alreadyUsed = await _context.VoucherUsages
+                        .AnyAsync(vu => vu.VoucherId == dbVoucher.Id && vu.UserId == user.Id);
 
-                    order.VoucherId = dbVoucher.Id;
-                    order.DiscountAmount = discountVal;
-                    
-                    // Trừ luôn số lượt dùng của Voucher
-                    dbVoucher.UsedCount += 1;
-                    _context.Vouchers.Update(dbVoucher);
+                    if (!alreadyUsed)
+                    {
+                        decimal discountVal = rootTotal * ((decimal)dbVoucher.DiscountPercent / 100);
+                        finalTotal = rootTotal - discountVal;
+
+                        order.VoucherId = dbVoucher.Id;
+                        order.DiscountAmount = discountVal;
+
+                        dbVoucher.UsedCount += 1;
+                        _context.Vouchers.Update(dbVoucher);
+
+                        _context.VoucherUsages.Add(new VoucherUsage
+                        {
+                            VoucherId = dbVoucher.Id,
+                            UserId    = user.Id,
+                            UsedAt    = DateTime.UtcNow
+                        });
+                    }
                 }
             }
 
@@ -262,30 +275,40 @@ namespace Huy_Final_0843.Controllers
         // --- ĐỘNG CƠ MÃ GIẢM GIÁ (AJAX API) ---
         [HttpPost]
         [AllowAnonymous]
-        public IActionResult ApplyVoucher([FromBody] string voucherCode)
+        public async Task<IActionResult> ApplyVoucher([FromBody] string voucherCode)
         {
-            if (string.IsNullOrWhiteSpace(voucherCode)) 
+            if (string.IsNullOrWhiteSpace(voucherCode))
                 return Json(new { success = false, message = "Vui lòng nhập mã" });
 
             var checkVoucher = _context.Vouchers.FirstOrDefault(v => v.Code == voucherCode.ToUpper());
-            
+
             if (checkVoucher == null)
                 return Json(new { success = false, message = "Mã không tồn tại!" });
-            
+
             if (checkVoucher.ExpiryDate < DateTime.UtcNow)
                 return Json(new { success = false, message = "Mã đã quá hạn sử dụng!" });
-                
+
             if (checkVoucher.MaxUsage > 0 && checkVoucher.UsedCount >= checkVoucher.MaxUsage)
                 return Json(new { success = false, message = "Mã đã hết lượt dùng!" });
+
+            // Kiểm tra mỗi tài khoản chỉ dùng 1 lần
+            var user = await _userManager.GetUserAsync(User);
+            if (user != null)
+            {
+                bool alreadyUsed = await _context.VoucherUsages
+                    .AnyAsync(vu => vu.VoucherId == checkVoucher.Id && vu.UserId == user.Id);
+                if (alreadyUsed)
+                    return Json(new { success = false, message = "Bạn đã sử dụng mã này rồi!" });
+            }
 
             // Mã Hợp Lê -> Ghim Vào Ký Ức Hệ Thống (Session)
             HttpContext.Session.SetString("VoucherCode", checkVoucher.Code);
             HttpContext.Session.SetInt32("DiscountPercent", checkVoucher.DiscountPercent);
 
-            return Json(new { 
-                success = true, 
-                message = "Áp mã thành công!", 
-                percent = checkVoucher.DiscountPercent 
+            return Json(new {
+                success = true,
+                message = "Áp mã thành công!",
+                percent = checkVoucher.DiscountPercent
             });
         }
 
@@ -297,20 +320,25 @@ namespace Huy_Final_0843.Controllers
             decimal cartTotal = cart.Items.Sum(i => i.Price * i.Quantity);
             DateTime now = DateTime.Now;
 
-            var availableVouchers = _context.Vouchers
+            var vouchers = _context.Vouchers
                 .Where(v => v.IsActive
+                    && !v.IsPrivate
                     && v.ExpiryDate >= now
-                    && (v.MaxUsage == 0 || v.UsedCount < v.MaxUsage)
-                    && v.MinOrderAmount <= cartTotal)
-                .Select(v => new
-                {
-                    code = v.Code,
-                    description = $"Giảm {v.DiscountPercent}% cho đơn từ {v.MinOrderAmount:N0} vnđ", 
-                    discountDisplay = v.DiscountType == "Percent"
-                        ? $"{v.DiscountPercent}%"
-                        : $"{v.DiscountValue}"
-                })
+                    && (v.MaxUsage == 0 || v.UsedCount < v.MaxUsage))
+                .OrderBy(v => v.MinOrderAmount)
                 .ToList();
+
+            var availableVouchers = vouchers.Select(v => new
+            {
+                code = v.Code,
+                description = v.MinOrderAmount > 0
+                    ? $"Giảm {v.DiscountPercent}% cho đơn từ {v.MinOrderAmount:N0} vnđ"
+                    : $"Giảm {v.DiscountPercent}% cho mọi đơn hàng",
+                discountDisplay = v.DiscountType == "Percent"
+                    ? $"{v.DiscountPercent}%"
+                    : $"{v.DiscountValue:N0} ₫",
+                eligible = v.MinOrderAmount <= cartTotal
+            }).ToList();
 
             return Json(availableVouchers);
         }

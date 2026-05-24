@@ -57,8 +57,8 @@ namespace Huy_Final_0843.Helpers
             var content = $@"
                 <p>Xin chào,</p>
                 <p>Chúng tôi nhận được yêu cầu khôi phục mật khẩu cho tài khoản của bạn tại <b>Meow Garden</b>. Vui lòng sử dụng mã xác nhận dưới đây:</p>
-                <div style='background-color: #f0f7ff; border: 2px dashed #3a7bd5; padding: 20px; text-align: center; margin: 30px 0; border-radius: 10px;'>
-                    <span style='font-size: 40px; font-weight: 800; color: #3a7bd5; letter-spacing: 15px;'>{otp}</span>
+                <div style='background-color: #fdf2f2; border: 2px dashed #bc8f8f; padding: 20px; text-align: center; margin: 30px 0; border-radius: 10px;'>
+                    <span style='font-size: 40px; font-weight: 800; color: #bc8f8f; letter-spacing: 15px;'>{otp}</span>
                 </div>
                 <p style='color: #d9534f; font-weight: bold;'>Lưu ý: Mã này sẽ hết hạn sau 10 phút. Nếu bạn không thực hiện yêu cầu này, hãy đổi mật khẩu ngay để bảo mật tài khoản.</p>
                 <p>Trân trọng,<br/>Đội ngũ Meow Garden</p>";
