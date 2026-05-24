@@ -1,0 +1,101 @@
+@model Huy_Final_0843.Models.Cat
+@{
+    ViewData["Title"] = Model.Name + " - Meow Garden";
+    string currentUrl = $"{Context.Request.Scheme}://{Context.Request.Host}{Context.Request.Path}";
+}
+
+@section Meta {
+    <meta name="description" content="@Model.Description" />
+    <meta property="og:title" content="@Model.Name - Meow Garden" />
+    <meta property="og:image" content="@Model.ImageUrl" />
+    <meta property="og:url" content="@currentUrl" />
+}
+
+<div class="container mt-5 mb-5">
+
+    <div class="card p-4 shadow-sm" style="background:#fff; border:1px solid var(--sand); border-radius:20px;">
+        <div class="row">
+
+            <!-- Ảnh -->
+            <div class="col-md-5">
+                @if (!string.IsNullOrEmpty(Model.ImageUrl)) {
+                    <img src="@Model.ImageUrl" alt="@Model.Name" class="img-fluid rounded-3 shadow-sm w-100"
+                         style="max-height:450px; object-fit:cover; border:1px solid var(--sand);" />
+                } else {
+                    <div class="d-flex align-items-center justify-content-center rounded-3 shadow-sm"
+                         style="height:350px; background:var(--mist); border:1px solid var(--sand);">
+                        <i class="fas fa-cat fa-5x" style="color:var(--bark);"></i>
+                    </div>
+                }
+            </div>
+
+            <!-- Thông tin -->
+            <div class="col-md-7 d-flex flex-column pt-3 pt-md-0">
+
+                <div class="mb-2">
+                    <span class="badge px-3 py-2 border" style="background:var(--mist); color:var(--charcoal); border-color:var(--sand)!important; font-size:13px;">
+                        <i class="fas fa-cat me-1" style="color:var(--terra);"></i> Mèo Cảnh &nbsp;·&nbsp; CAT-@Model.Id.ToString("000")
+                    </span>
+                </div>
+
+                <h2 class="fw-bold mb-3" style="color:var(--charcoal); font-family:'Cormorant Garamond',serif;">@Model.Name</h2>
+
+                <!-- Giới tính & tuổi -->
+                <div class="d-flex gap-3 mb-3">
+                    @if (Model.Gender == "Đực") {
+                        <span class="badge px-3 py-2" style="background:#dbeafe; color:#1d4ed8; border:1px solid #93c5fd; font-size:14px;">♂ Đực</span>
+                    } else if (Model.Gender == "Cái") {
+                        <span class="badge px-3 py-2" style="background:#fce7f3; color:#be185d; border:1px solid #f9a8d4; font-size:14px;">♀ Cái</span>
+                    } else {
+                        <span class="badge px-3 py-2" style="background:#f1f5f9; color:#64748b; border:1px solid #cbd5e1; font-size:14px;">❓ Không rõ giới tính</span>
+                    }
+                    <span class="badge px-3 py-2" style="background:var(--mist); color:var(--charcoal); border:1px solid var(--sand); font-size:14px;">
+                        <i class="fas fa-cake-candles me-1"></i>
+                        @(Model.Age == 0 ? "Dưới 1 tháng tuổi" : $"{Model.Age} tháng tuổi")
+                    </span>
+                </div>
+
+                <h1 class="mb-4" style="color:var(--terra); font-weight:700; font-family:'Cormorant Garamond',serif;">
+                    @Model.Price.ToString("#,##0") <span class="fs-4" style="color:var(--bark);">VNĐ</span>
+                </h1>
+
+                @if (!string.IsNullOrEmpty(Model.Description)) {
+                    <div class="p-3 rounded-3 mb-4" style="background:var(--mist); border-left:5px solid var(--terra);">
+                        <h6 class="fw-bold text-uppercase small mb-2" style="color:var(--bark);"><i class="fas fa-info-circle me-2"></i>Thông Tin Chi Tiết</h6>
+                        <p class="m-0" style="white-space:pre-wrap; color:var(--charcoal); line-height:1.6;">@Model.Description</p>
+                    </div>
+                }
+
+                <!-- Liên hệ đặt cọc -->
+                <div class="mt-auto">
+                    <div class="p-3 rounded-3 mb-3 d-flex align-items-center gap-3" style="background:#f0fdf4; border:1px solid #86efac;">
+                        <i class="fas fa-circle-check fa-2x" style="color:#16a34a;"></i>
+                        <div>
+                            <div class="fw-bold" style="color:#15803d;">Bé đang chờ chủ nhân!</div>
+                            <small style="color:#166534;">Liên hệ để đặt cọc và hẹn lịch đón bé về.</small>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-3 flex-wrap">
+                        <a href="https://www.facebook.com/hysoul2k/" target="_blank" class="btn flex-grow-1 fw-bold shadow-sm"
+                           style="height:50px; background:#1877f2; color:#fff; border-radius:10px; font-size:1.05rem;">
+                            <i class="fab fa-facebook me-2"></i>Nhắn tin Facebook
+                        </a>
+                        <div class="btn flex-grow-1 fw-bold shadow-sm d-flex align-items-center justify-content-center gap-2"
+                             style="height:50px; background:#0068ff; color:#fff; border-radius:10px; font-size:1.05rem; cursor:default;">
+                            <i class="fas fa-phone-alt"></i> 0908 758 533
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <a href="@Url.Action("Index", "Home", new { categoryId = 1 })" class="btn btn-outline-secondary fw-bold w-100"
+                           style="height:44px; border-radius:10px;">
+                            <i class="fas fa-arrow-left me-1"></i>Xem mèo khác
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>

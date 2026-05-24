@@ -91,6 +91,7 @@ namespace Huy_Final_0843.Areas.Admin.Controllers
             existingVoucher.UsedCount = voucher.UsedCount;
             existingVoucher.ExpiryDate = voucher.ExpiryDate;
             existingVoucher.IsActive = voucher.IsActive;
+            existingVoucher.IsPrivate = voucher.IsPrivate;
 
             _context.Vouchers.Update(existingVoucher);
             await _context.SaveChangesAsync();

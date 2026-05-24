@@ -1,0 +1,143 @@
+@model IEnumerable<Huy_Final_0843.Models.Cat>
+@{
+    ViewData["Title"] = "Quản lý Mèo";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="fw-bold m-0"><i class="fas fa-cat me-2"></i>Danh Sách Mèo</h3>
+    @if (User.IsInRole(SD.Role_Admin) || User.IsInRole(SD.Role_Staff)) {
+        <a asp-action="Add" class="btn btn-dark px-4"><i class="fas fa-plus me-2"></i>THÊM MÈO</a>
+    }
+</div>
+
+<div class="mb-3 p-3 rounded-3 border d-flex flex-wrap gap-3 align-items-center" style="background:rgba(0,0,0,0.02);">
+    <div class="d-flex align-items-center gap-2">
+        <label class="small mb-0 text-nowrap fw-bold"><i class="fas fa-venus-mars me-1"></i>Giới tính:</label>
+        <select id="genderFilter" class="form-select form-select-sm" style="width:auto;">
+            <option value="">Tất cả</option>
+            <option value="Đực">♂ Đực</option>
+            <option value="Cái">♀ Cái</option>
+            <option value="Không rõ">❓ Không rõ</option>
+        </select>
+    </div>
+
+    <div class="d-flex align-items-center gap-2">
+        <label class="small mb-0 text-nowrap fw-bold"><i class="fas fa-cake-candles me-1"></i>Độ tuổi:</label>
+        <select id="ageFilter" class="form-select form-select-sm" style="width:auto;">
+            <option value="">Tất cả</option>
+            <option value="baby">🍼 Dưới 3 tháng</option>
+            <option value="young">🐱 3 – 12 tháng</option>
+            <option value="adult">🐈 Trên 12 tháng</option>
+        </select>
+    </div>
+
+    <button id="resetFilters" class="btn btn-sm btn-outline-secondary ms-auto">
+        <i class="fas fa-rotate-left me-1"></i>Xóa lọc
+    </button>
+</div>
+
+<div class="table-responsive">
+    <table id="catTable" class="table table-dark table-hover">
+        <thead>
+            <tr class="text-uppercase small">
+                <th>Mã</th>
+                <th>Ảnh</th>
+                <th>Thông Tin</th>
+                <th class="text-center">Giới Tính</th>
+                <th class="text-center">Tuổi</th>
+                <th class="text-center">Đơn Giá</th>
+                <th class="text-end">Quản Lý</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model) {
+                <tr>
+                    <td class="align-middle" style="white-space:nowrap;">
+                        <span class="badge bg-dark border font-monospace p-2">CAT-@item.Id.ToString("000")</span>
+                    </td>
+                    <td style="width:90px;">
+                        @if (!string.IsNullOrEmpty(item.ImageUrl)) {
+                            <img src="@item.ImageUrl" class="rounded-3 shadow" style="width:75px;height:75px;object-fit:cover;" />
+                        } else {
+                            <div class="rounded-3 d-flex align-items-center justify-content-center" style="width:75px;height:75px;background:#f1f5f9;">
+                                <i class="fas fa-cat text-secondary fs-4"></i>
+                            </div>
+                        }
+                    </td>
+                    <td>
+                        <div class="fw-bold fs-5" style="color:#000;">@item.Name</div>
+                        <div class="small" style="color:#000;">@item.Description</div>
+                    </td>
+                    <td class="text-center align-middle" data-gender="@item.Gender">
+                        @if (item.Gender == "Đực") {
+                            <span class="badge p-2" style="background:#dbeafe;color:#1d4ed8;border:1px solid #93c5fd;">♂ Đực</span>
+                        } else if (item.Gender == "Cái") {
+                            <span class="badge p-2" style="background:#fce7f3;color:#be185d;border:1px solid #f9a8d4;">♀ Cái</span>
+                        } else {
+                            <span class="badge p-2" style="background:#f1f5f9;color:#64748b;border:1px solid #cbd5e1;">❓ Không rõ</span>
+                        }
+                    </td>
+                    <td class="text-center align-middle" data-age="@item.Age">
+                        @if (item.Age == 0) {
+                            <span class="badge p-2" style="background:#fef9c3;color:#854d0e;border:1px solid #fde047;">Dưới 1 tháng</span>
+                        } else {
+                            <span class="badge p-2" style="background:#f1f5f9;color:#334155;border:1px solid #cbd5e1;">@item.Age tháng</span>
+                        }
+                    </td>
+                    <td class="text-center align-middle">
+                        <span class="fw-bold" style="color:#fff !important;">@item.Price.ToString("N0")</span>
+                        <span style="color:#fff !important;">đ</span>
+                    </td>
+                    <td class="text-end align-middle">
+                        <div class="btn-group shadow-sm">
+                            @if (User.IsInRole(SD.Role_Admin) || User.IsInRole(SD.Role_Staff)) {
+                                <a asp-action="Update" asp-route-id="@item.Id" class="btn btn-outline-warning btn-sm"><i class="fas fa-pen-to-square"></i></a>
+                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger btn-sm"><i class="fas fa-trash-can"></i></a>
+                            }
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
+                if (settings.nTable.id !== 'catTable') return true;
+
+                var row = $('#catTable tbody tr').eq(dataIndex);
+
+                var genderVal = $('#genderFilter').val();
+                if (genderVal) {
+                    var gender = row.find('td[data-gender]').attr('data-gender') || '';
+                    if (gender !== genderVal) return false;
+                }
+
+                var ageVal = $('#ageFilter').val();
+                if (ageVal) {
+                    var age = parseInt(row.find('td[data-age]').attr('data-age') || '0', 10);
+                    if (ageVal === 'baby'  && age >= 3)  return false;
+                    if (ageVal === 'young' && (age < 3 || age > 12)) return false;
+                    if (ageVal === 'adult' && age <= 12) return false;
+                }
+
+                return true;
+            });
+
+            var table = $('#catTable').DataTable({
+                "language": { "search": "", "searchPlaceholder": "Tìm mã / tên...", "paginate": { "previous": "Trước", "next": "Sau" } },
+                "columnDefs": [{ "orderable": false, "targets": [1, 6] }]
+            });
+            $('.dataTables_filter input').addClass('form-control rounded-pill px-4 mb-3');
+
+            $('#genderFilter, #ageFilter').on('change', function () { table.draw(); });
+            $('#resetFilters').on('click', function () {
+                $('#genderFilter, #ageFilter').val('');
+                table.draw();
+            });
+        });
+    </script>
+}

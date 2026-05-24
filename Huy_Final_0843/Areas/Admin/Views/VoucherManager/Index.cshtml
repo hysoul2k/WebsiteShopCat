@@ -27,6 +27,7 @@ else
         <thead>
             <tr>
                 <th>Mã</th>
+                <th>Phạm vi</th>
                 <th>Loại</th>
                 <th>Giá trị</th>
                 <th>Đơn tối thiểu</th>
@@ -41,6 +42,16 @@ else
             {
                 <tr id="row-@v.Id" class="@(v.IsActive ? string.Empty : "table-secondary")">
                     <td><code>@v.Code</code></td>
+                    <td>
+                        @if (v.IsPrivate)
+                        {
+                            <span class="badge bg-warning text-dark">Private</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-info text-dark">Public</span>
+                        }
+                    </td>
                     <td>@(v.DiscountType?.Equals("Percent", StringComparison.OrdinalIgnoreCase) == true ? "%" : "Tiền cố định")</td>
                     <td>
                         @(v.DiscountType?.Equals("Percent", StringComparison.OrdinalIgnoreCase) == true

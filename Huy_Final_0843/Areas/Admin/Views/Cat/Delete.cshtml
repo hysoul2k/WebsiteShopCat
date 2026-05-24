@@ -1,0 +1,48 @@
+@model Huy_Final_0843.Models.Cat
+@{
+    ViewData["Title"] = "Xóa Mèo";
+}
+
+<div class="d-flex align-items-center gap-3 mb-4">
+    <a asp-action="Index" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left"></i></a>
+    <h3 class="fw-bold m-0 text-danger"><i class="fas fa-trash-can me-2"></i>Xác Nhận Xóa Mèo</h3>
+</div>
+
+<div class="glass-card" style="max-width:500px;">
+    <div class="d-flex align-items-center gap-3 mb-4">
+        @if (!string.IsNullOrEmpty(Model.ImageUrl)) {
+            <img src="@Model.ImageUrl" class="rounded-3 shadow" style="width:80px;height:80px;object-fit:cover;" />
+        } else {
+            <div class="rounded-3 d-flex align-items-center justify-content-center" style="width:80px;height:80px;background:#fef2f2;">
+                <i class="fas fa-cat text-danger fs-3"></i>
+            </div>
+        }
+        <div>
+            <div class="fw-bold fs-5">@Model.Name</div>
+            <div class="text-secondary small font-monospace">CAT-@Model.Id.ToString("000")</div>
+            <div class="small">
+                @if (Model.Gender == "Đực") {
+                    <span style="color:#1d4ed8;">♂ Đực</span>
+                } else if (Model.Gender == "Cái") {
+                    <span style="color:#be185d;">♀ Cái</span>
+                } else {
+                    <span class="text-secondary">❓ Không rõ</span>
+                }
+                &nbsp;·&nbsp; @Model.Price.ToString("N0") đ
+            </div>
+        </div>
+    </div>
+
+    <div class="alert alert-danger">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        Hành động này không thể hoàn tác. Bạn có chắc muốn xóa mèo này?
+    </div>
+
+    <form asp-action="DeleteConfirmed" method="post">
+        <input type="hidden" asp-for="Id" />
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-danger px-4"><i class="fas fa-trash-can me-2"></i>Xóa</button>
+            <a asp-action="Index" class="btn btn-outline-secondary px-4">Hủy</a>
+        </div>
+    </form>
+</div>

@@ -14,6 +14,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Caching.Memory;
+using Huy_Final_0843.Helpers;
 using Huy_Final_0843.Models;
 
 namespace Huy_Final_0843.Areas.Identity.Pages.Account
@@ -27,6 +29,7 @@ namespace Huy_Final_0843.Areas.Identity.Pages.Account
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly IMemoryCache _cache;
 
         public RegisterModel(
             UserManager<ApplicationUser> userManager,
@@ -34,7 +37,8 @@ namespace Huy_Final_0843.Areas.Identity.Pages.Account
             SignInManager<ApplicationUser> signInManager,
             ILogger<RegisterModel> logger,
             IEmailSender emailSender,
-            RoleManager<IdentityRole> roleManager)
+            RoleManager<IdentityRole> roleManager,
+            IMemoryCache cache)
         {
             _userManager = userManager;
             _userStore = userStore;
@@ -43,6 +47,7 @@ namespace Huy_Final_0843.Areas.Identity.Pages.Account
             _logger = logger;
             _emailSender = emailSender;
             _roleManager = roleManager;
+            _cache = cache;
         }
 
         [BindProperty]
@@ -108,12 +113,22 @@ namespace Huy_Final_0843.Areas.Identity.Pages.Account
 
                     await _userManager.AddToRoleAsync(user, SD.Role_User);
 
-                    var userId = await _userManager.GetUserIdAsync(user);
-                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                    code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+                    // Tạo OTP 6 số, lưu cache 10 phút
+                    var otp = new Random().Next(100000, 999999).ToString();
+                    _cache.Set($"register_otp_{Input.Email}", otp, TimeSpan.FromMinutes(10));
 
-                    await _signInManager.SignInAsync(user, isPersistent: false);
-                    return LocalRedirect(returnUrl);
+                    var otpContent = $@"
+                        <p>Chào mừng <strong>{user.FullName}</strong> đến với Meow Garden! 🐱</p>
+                        <p>Mã OTP xác nhận tài khoản của bạn:</p>
+                        <div style='background-color:#fdf2f2; border:2px dashed #bc8f8f; padding:20px; text-align:center; margin:30px 0; border-radius:10px;'>
+                            <span style='font-size:40px; font-weight:800; color:#bc8f8f; letter-spacing:15px;'>{otp}</span>
+                        </div>
+                        <p style='color:#d9534f; font-weight:bold;'>Mã có hiệu lực trong 10 phút. Không chia sẻ mã này cho bất kỳ ai.</p>";
+
+                    await _emailSender.SendEmailAsync(Input.Email, "🐾 Xác nhận tài khoản Meow Garden",
+                        EmailTemplateHelper.GetBaseTemplate("Xác nhận tài khoản", otpContent));
+
+                    return RedirectToPage("./VerifyOtp", new { email = Input.Email, returnUrl });
                 }
 
                 foreach (var error in result.Errors)
