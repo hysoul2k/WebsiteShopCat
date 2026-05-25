@@ -325,5 +325,43 @@
             document.getElementById('sortOrderHidden').value = val;
             document.getElementById('filterForm').submit();
         }
+
+        // AJAX category tab switching — no full page reload
+        document.addEventListener('click', async function (e) {
+            const tab = e.target.closest('.cat-card');
+            if (!tab) return;
+            e.preventDefault();
+
+            // Update active state ngay lập tức
+            document.querySelectorAll('.cat-card').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+
+            // Build URL: giữ nguyên filter hiện tại, chỉ đổi categoryId + reset page 1
+            const tabUrl = new URL(tab.href, location.origin);
+            const catId = tabUrl.searchParams.get('categoryId') || '';
+            const params = new URLSearchParams(location.search);
+            if (catId) params.set('categoryId', catId);
+            else params.delete('categoryId');
+            params.delete('page');
+            const fetchUrl = `/Home/Index?${params.toString()}`;
+
+            // Fade loading
+            const grid = document.getElementById('product-grid');
+            grid.style.cssText += 'opacity:0.4;transition:opacity 0.15s;pointer-events:none;';
+
+            try {
+                const res = await fetch(fetchUrl, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+                const html = await res.text();
+                const doc = new DOMParser().parseFromString(html, 'text/html');
+                const newGrid = doc.getElementById('product-grid');
+                if (newGrid) grid.innerHTML = newGrid.innerHTML;
+                history.pushState({}, '', fetchUrl);
+            } catch {
+                location.href = fetchUrl; // fallback nếu fetch lỗi
+            } finally {
+                grid.style.opacity = '1';
+                grid.style.pointerEvents = '';
+            }
+        });
     </script>
 }

@@ -189,6 +189,14 @@ SẢN PHẨM LIÊN QUAN SỨC KHỎE (từ DB)
             _cache = cache;
         }
 
+        private static bool IsCatBuyingQuery(string lower) =>
+            new[] { "mèo anh", "anh lông ngắn", "aln", "lông ngắn", "lông dài", "ald",
+                    "mèo bengal", "bengal", "ragdoll", "ba tư", "persian", "munchkin",
+                    "sphynx", "xiêm", "siamese", "scottish", "russian blue", "maine coon",
+                    "mướp", "tìm mèo", "mua mèo", "giống mèo", "muốn nuôi", "nhận nuôi",
+                    "bé mèo", "mèo con để nuôi", "giá mèo" }
+            .Any(kw => lower.Contains(kw));
+
         public async Task<ChatbotResponse> ProcessChatAsync(string message, string mode = "shop", string? userId = null)
         {
             var startTime = DateTime.UtcNow;
@@ -206,15 +214,27 @@ SẢN PHẨM LIÊN QUAN SỨC KHỎE (từ DB)
             }
 
             // ── PHASE 3: RAG RETRIEVAL ──
-            var relevantProducts = await RetrieveRelevantProductsAsync(message);
+            var lower = message.ToLowerInvariant();
+            List<Cat> relevantCats = new();
+            List<Product> relevantProducts = new();
+
+            if (IsCatBuyingQuery(lower))
+            {
+                relevantCats = await RetrieveRelevantCatsAsync(message);
+            }
+            else
+            {
+                relevantProducts = await RetrieveRelevantProductsAsync(message);
+            }
+
             var relevantFaq = RetrieveRelevantFaq(message);
             var relevantBlog = RetrieveRelevantBlogPost(message);
 
-            _logger.LogInformation("[CatRagChatService] RAG: Found {ProductCount} products, {FaqFound} FAQ, {BlogFound} Blog post",
-                relevantProducts.Count, relevantFaq != null ? "1" : "0", relevantBlog != null ? "1" : "0");
+            _logger.LogInformation("[CatRagChatService] RAG: {CatCount} cats, {ProductCount} products, {FaqFound} FAQ, {BlogFound} Blog",
+                relevantCats.Count, relevantProducts.Count, relevantFaq != null ? "1" : "0", relevantBlog != null ? "1" : "0");
 
             // Build prompts and payload
-            var systemPrompt = BuildPromptContext(mode, relevantProducts, relevantFaq, relevantBlog);
+            var systemPrompt = BuildPromptContext(mode, relevantProducts, relevantFaq, relevantBlog, relevantCats);
 
             // ── API CALL OR HIGH-FIDELITY SIMULATION MODE ──
             string reply;
@@ -224,7 +244,7 @@ SẢN PHẨM LIÊN QUAN SỨC KHỎE (từ DB)
             if (isMockKey)
             {
                 _logger.LogWarning("[CatRagChatService] Using High-Fidelity Simulation Mode because API Key is placeholder or empty.");
-                reply = SimulateResponse(message, relevantProducts, relevantFaq, relevantBlog, mode);
+                reply = SimulateResponse(message, relevantProducts, relevantFaq, relevantBlog, mode, relevantCats);
             }
             else
             {
@@ -235,18 +255,14 @@ SẢN PHẨM LIÊN QUAN SỨC KHỎE (từ DB)
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "[CatRagChatService] Anthropic API failed. Falling back to high-fidelity simulation.");
-                    reply = SimulateResponse(message, relevantProducts, relevantFaq, relevantBlog, mode);
+                    reply = SimulateResponse(message, relevantProducts, relevantFaq, relevantBlog, mode, relevantCats);
                 }
             }
 
-            // Format response products list
-            var matchedDtos = relevantProducts.Select(p => new ChatProductDto
-            {
-                Id = p.Id,
-                Name = p.Name,
-                Price = p.Price,
-                ImageUrl = p.ImageUrl
-            }).ToList();
+            // Format response list — cats take priority over products
+            var matchedDtos = relevantCats.Any()
+                ? relevantCats.Select(c => new ChatProductDto { Id = c.Id, Name = c.Name, Price = c.Price, ImageUrl = c.ImageUrl }).ToList()
+                : relevantProducts.Select(p => new ChatProductDto { Id = p.Id, Name = p.Name, Price = p.Price, ImageUrl = p.ImageUrl }).ToList();
 
             var latency = (DateTime.UtcNow - startTime).TotalMilliseconds;
             _logger.LogInformation("[CatRagChatService] Processed message in {Latency}ms. Confidence: 1.0", latency);
@@ -492,6 +508,66 @@ SẢN PHẨM LIÊN QUAN SỨC KHỎE (từ DB)
             return scored;
         }
 
+        private async Task<List<Cat>> RetrieveRelevantCatsAsync(string query)
+        {
+            var lower = query.ToLowerInvariant();
+
+            var allCats = await _context.Cats.AsNoTracking().ToListAsync();
+
+            var scored = allCats.Select(c =>
+            {
+                int score = 0;
+                var target = $"{c.Name} {c.Description} {c.Gender}".ToLowerInvariant();
+
+                // Breed keywords
+                var breedMap = new[]
+                {
+                    (new[]{ "anh lông ngắn", "aln", "lông ngắn", "british shorthair" }, new[]{ "anh lông ngắn", "aln", "british" }),
+                    (new[]{ "anh lông dài", "ald", "lông dài", "british longhair" },    new[]{ "anh lông dài", "ald" }),
+                    (new[]{ "ba tư", "persian", "lông xù" },                            new[]{ "ba tư", "persian" }),
+                    (new[]{ "sphynx", "ai cập", "không lông" },                         new[]{ "sphynx" }),
+                    (new[]{ "ragdoll" },                                                 new[]{ "ragdoll" }),
+                    (new[]{ "xiêm", "siamese" },                                        new[]{ "xiêm", "siamese" }),
+                    (new[]{ "munchkin", "chân ngắn" },                                  new[]{ "munchkin" }),
+                    (new[]{ "bengal", "báo" },                                          new[]{ "bengal" }),
+                    (new[]{ "mướp", "ta" },                                             new[]{ "mướp" }),
+                    (new[]{ "russian blue", "nga" },                                    new[]{ "russian" }),
+                    (new[]{ "maine coon" },                                              new[]{ "maine coon" }),
+                };
+
+                foreach (var (queryKws, catKws) in breedMap)
+                {
+                    if (queryKws.Any(kw => lower.Contains(kw)) && catKws.Any(kw => target.Contains(kw)))
+                        score += 20;
+                }
+
+                // Gender filter
+                if ((lower.Contains("đực") || lower.Contains("male")) && target.Contains("đực")) score += 10;
+                if ((lower.Contains("cái") || lower.Contains("female")) && target.Contains("cái")) score += 10;
+
+                // Price filter
+                if (lower.Contains("rẻ") || lower.Contains("giá tốt") || lower.Contains("bình dân")) score += (c.Price < 3_000_000 ? 5 : 0);
+
+                // Word overlap
+                var words = lower.Split(new[] { ' ', ',', '.', '?' }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (var w in words)
+                    if (w.Length > 2 && target.Contains(w)) score += 1;
+
+                return new { Cat = c, Score = score };
+            })
+            .Where(x => x.Score > 0)
+            .OrderByDescending(x => x.Score)
+            .Select(x => x.Cat)
+            .Take(4)
+            .ToList();
+
+            // Fallback: trả về tất cả mèo nếu không match breed cụ thể
+            if (!scored.Any())
+                scored = allCats.Take(4).ToList();
+
+            return scored;
+        }
+
         private FaqItem? RetrieveRelevantFaq(string query)
         {
             var lower = query.ToLowerInvariant();
@@ -531,13 +607,27 @@ SẢN PHẨM LIÊN QUAN SỨC KHỎE (từ DB)
         // SYSTEM PROMPT BUILDER
         // ══════════════════════════════════════════════════════
 
-        private string BuildPromptContext(string mode, List<Product> products, FaqItem? faq, BlogPostItem? blogPost)
+        private string BuildPromptContext(string mode, List<Product> products, FaqItem? faq, BlogPostItem? blogPost, List<Cat>? cats = null)
         {
             var sb = new StringBuilder();
-            
+
             // Format product data from list
             var productDataBuilder = new StringBuilder();
-            if (products.Any())
+
+            if (cats != null && cats.Any())
+            {
+                productDataBuilder.AppendLine("[MÈO ĐANG BÁN TẠI SHOP]");
+                foreach (var c in cats)
+                {
+                    var gender = c.Gender ?? "Không rõ";
+                    var age = c.Age == 0 ? "Dưới 1 tháng" : $"{c.Age} tháng tuổi";
+                    productDataBuilder.AppendLine($"- [{c.Id}] {c.Name}");
+                    productDataBuilder.AppendLine($"  Giá: {c.Price:N0}đ | Giới tính: {gender} | Tuổi: {age}");
+                    if (!string.IsNullOrWhiteSpace(c.Description))
+                        productDataBuilder.AppendLine($"  Mô tả: {c.Description.Substring(0, Math.Min(150, c.Description.Length))}...");
+                }
+            }
+            else if (products.Any())
             {
                 foreach (var p in products)
                 {
@@ -627,7 +717,7 @@ SẢN PHẨM LIÊN QUAN SỨC KHỎE (từ DB)
         // HIGH-FIDELITY SIMULATION MODE (TEST VERIFIABILITY)
         // ══════════════════════════════════════════════════════
 
-        private string SimulateResponse(string message, List<Product> products, FaqItem? faq, BlogPostItem? blog, string mode = "shop")
+        private string SimulateResponse(string message, List<Product> products, FaqItem? faq, BlogPostItem? blog, string mode = "shop", List<Cat>? cats = null)
         {
             var lower = message.ToLowerInvariant();
 
@@ -696,6 +786,24 @@ SẢN PHẨM LIÊN QUAN SỨC KHỎE (từ DB)
 
             // ── SHOP MODE ────────────────────────────────────────
             var sb2 = new StringBuilder();
+
+            // Hỏi mua mèo / tìm giống mèo → trả về Cats
+            if (cats != null && cats.Any())
+            {
+                sb2.AppendLine("🐱 Meow Garden hiện có những bé mèo này phù hợp với yêu cầu của bạn:\n");
+                foreach (var c in cats)
+                {
+                    var gender = c.Gender ?? "Không rõ";
+                    var age = c.Age == 0 ? "dưới 1 tháng" : $"{c.Age} tháng tuổi";
+                    sb2.AppendLine($"🐾 **{c.Name}** — {c.Price:N0}đ");
+                    sb2.AppendLine($"   Giới tính: {gender} | Tuổi: {age}");
+                    if (!string.IsNullOrWhiteSpace(c.Description))
+                        sb2.AppendLine($"   {c.Description.Substring(0, Math.Min(100, c.Description.Length))}...");
+                    sb2.AppendLine();
+                }
+                sb2.AppendLine("Bạn muốn xem chi tiết bé nào? Mình có thể tư vấn thêm về tính cách và cách chăm sóc nhé! 😊");
+                return sb2.ToString();
+            }
 
             // Mèo con / 3 tháng ăn gì?
             if (lower.Contains("3 tháng") || lower.Contains("mèo con") || lower.Contains("kitten"))
