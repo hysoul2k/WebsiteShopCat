@@ -23,6 +23,7 @@
                     <th>Họ Tên</th>
                     <th>Email</th>
                     <th>Quyền Hiện Tại</th>
+                    <th class="text-center">Trạng Thái</th>
                     <th class="text-center">Thao Tác</th>
                 </tr>
             </thead>
@@ -46,10 +47,35 @@
                             }
                         </td>
                         <td class="text-center align-middle">
+                            @if (user.IsPermanentlyLocked)
+                            {
+                                <span class="badge bg-danger">Khóa vĩnh viễn</span>
+                            }
+                            else if (user.LockedUntil.HasValue && user.LockedUntil.Value > DateTime.UtcNow)
+                            {
+                                <span class="badge bg-warning text-dark">Đang khóa</span>
+                                <div class="small text-muted mt-1">đến @user.LockedUntil.Value.AddHours(7).ToString("HH:mm:ss")</div>
+                            }
+                            else
+                            {
+                                <span class="badge bg-success">Bình thường</span>
+                            }
+                        </td>
+                        <td class="text-center align-middle">
                             <div class="d-flex justify-content-center gap-2">
                                 <a asp-action="ManageRoles" asp-route-userId="@user.UserId" class="btn btn-outline-info btn-sm">
                                     <i class="fas fa-user-shield me-1"></i>Phân quyền
                                 </a>
+                                @if (user.IsCurrentlyLocked)
+                                {
+                                    <form asp-action="UnlockUser" method="post">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="userId" value="@user.UserId" />
+                                        <button type="submit" class="btn btn-warning btn-sm">
+                                            <i class="fas fa-unlock me-1"></i>Mở khóa
+                                        </button>
+                                    </form>
+                                }
                                 <form asp-action="DeleteUser" method="post" onsubmit="return confirm('Xác nhận xóa tài khoản này?')">
                                     <input type="hidden" name="userId" value="@user.UserId" />
                                     <button type="submit" class="btn btn-rosy btn-sm">

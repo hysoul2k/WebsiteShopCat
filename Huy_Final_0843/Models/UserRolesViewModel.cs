@@ -10,6 +10,11 @@ namespace Huy_Final_0843.Models
         public string FullName { get; set; }
         public string Email { get; set; }
         public IEnumerable<string> Roles { get; set; }
+
+        // Lock status
+        public bool IsPermanentlyLocked { get; set; }
+        public DateTime? LockedUntil { get; set; }
+        public bool IsCurrentlyLocked => IsPermanentlyLocked || (LockedUntil.HasValue && LockedUntil.Value > DateTime.UtcNow);
     }
 
     public class ManageUserRolesViewModel

@@ -31,12 +31,16 @@ namespace Huy_Final_0843.Areas.Admin.Controllers
             var userRolesViewModel = new List<UserRolesViewModel>();
             foreach (var user in users)
             {
-                var thisViewModel = new UserRolesViewModel();
-                thisViewModel.UserId = user.Id;
-                thisViewModel.Email = user.Email;
-                thisViewModel.FullName = user.FullName;
-                thisViewModel.Roles = await _userManager.GetRolesAsync(user);
-                userRolesViewModel.Add(thisViewModel);
+                var vm = new UserRolesViewModel
+                {
+                    UserId = user.Id,
+                    Email = user.Email,
+                    FullName = user.FullName,
+                    Roles = await _userManager.GetRolesAsync(user),
+                    IsPermanentlyLocked = user.IsPermanentlyLocked,
+                    LockedUntil = user.LockedUntil
+                };
+                userRolesViewModel.Add(vm);
             }
 
             // Sắp xếp: Admin (1) > Staff (2) > User (3)
@@ -91,6 +95,25 @@ namespace Huy_Final_0843.Areas.Admin.Controllers
             await _userManager.UpdateSecurityStampAsync(user);
 
             TempData["Success"] = "Cập nhật quyền thành công!";
+            return RedirectToAction(nameof(Index));
+        }
+
+        // Mở khóa tài khoản
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UnlockUser(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return NotFound();
+
+            user.FailedLoginCount = 0;
+            user.TotalLockCount = 0;
+            user.LockedUntil = null;
+            user.IsPermanentlyLocked = false;
+            user.LastFailedAt = null;
+
+            await _userManager.UpdateAsync(user);
+            TempData["Success"] = $"Đã mở khóa tài khoản {user.Email}!";
             return RedirectToAction(nameof(Index));
         }
 
