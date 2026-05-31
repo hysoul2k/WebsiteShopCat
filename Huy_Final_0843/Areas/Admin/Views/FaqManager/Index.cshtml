@@ -1,0 +1,288 @@
+@{
+    ViewData["Title"] = "Quản lý FAQ";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Quản lý Cẩm nang / FAQ</h1>
+        <button class="btn btn-primary shadow-sm" onclick="openFaqModal()">
+            <i class="fas fa-plus fa-sm text-white-50"></i> Thêm FAQ
+        </button>
+    </div>
+
+    <!-- Filters -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+            <h6 class="m-0 font-weight-bold text-primary">Bộ lọc & Tìm kiếm</h6>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <input type="text" id="searchInput" class="form-control" placeholder="Tìm câu hỏi..." oninput="fetchFaqs()">
+                </div>
+                <div class="col-md-3 mb-3">
+                    <select id="categoryFilter" class="form-control" onchange="fetchFaqs()">
+                        <option value="">-- Tất cả danh mục --</option>
+                        <option value="policy">Chính sách</option>
+                        <option value="shipping">Vận chuyển</option>
+                        <option value="cat_care">Chăm sóc mèo</option>
+                        <option value="order">Đặt hàng/Thanh toán</option>
+                        <option value="general">Khác</option>
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <select id="statusFilter" class="form-control" onchange="fetchFaqs()">
+                        <option value="">-- Tất cả trạng thái --</option>
+                        <option value="true">Đang hiển thị</option>
+                        <option value="false">Đang ẩn</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data Table -->
+    <div class="card shadow mb-4">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th width="5%">ID</th>
+                            <th width="40%">Câu hỏi</th>
+                            <th width="15%">Danh mục</th>
+                            <th width="15%">Ngày tạo</th>
+                            <th width="10%">Hiển thị</th>
+                            <th width="15%">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="faqTableBody">
+                        <!-- Render by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Thêm/Sửa FAQ -->
+<div class="modal fade" id="faqModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle">Thêm mới FAQ</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="faqForm">
+                    <input type="hidden" id="faqId">
+                    <div class="form-group">
+                        <label>Danh mục <span class="text-danger">*</span></label>
+                        <select class="form-control" id="faqCategory" required>
+                            <option value="policy">Chính sách</option>
+                            <option value="shipping">Vận chuyển</option>
+                            <option value="cat_care">Chăm sóc mèo</option>
+                            <option value="order">Đặt hàng/Thanh toán</option>
+                            <option value="general">Khác</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Câu hỏi <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="faqQuestion" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Câu trả lời <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="faqAnswer" rows="5" required></textarea>
+                    </div>
+                    <div class="form-group custom-control custom-switch">
+                        <input type="checkbox" class="custom-control-input" id="faqIsActive" checked>
+                        <label class="custom-control-label" for="faqIsActive">Cho phép hiển thị</label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary" onclick="saveFaq()">Lưu thay đổi</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        let allFaqs = [];
+
+        $(document).ready(function () {
+            fetchFaqs();
+        });
+
+        function fetchFaqs() {
+            let cat = $('#categoryFilter').val();
+            let act = $('#statusFilter').val();
+            
+            let url = '/admin/faqs/api?';
+            if (cat) url += 'category=' + cat + '&';
+            if (act) url += 'isActive=' + act;
+
+            $.get(url, function (data) {
+                allFaqs = data;
+                renderTable();
+            });
+        }
+
+        function renderTable() {
+            let search = $('#searchInput').val().toLowerCase();
+            let html = '';
+
+            let filtered = allFaqs.filter(f => f.question.toLowerCase().includes(search) || f.answer.toLowerCase().includes(search));
+
+            if (filtered.length === 0) {
+                $('#faqTableBody').html('<tr><td colspan="6" class="text-center">Không có dữ liệu</td></tr>');
+                return;
+            }
+
+            filtered.forEach(f => {
+                let catName = getCategoryName(f.category);
+                let dateStr = new Date(f.createdAt).toLocaleDateString('vi-VN');
+                let checked = f.isActive ? 'checked' : '';
+                
+                html += `
+                    <tr>
+                        <td>${f.faqId}</td>
+                        <td>
+                            <strong>${f.question}</strong><br>
+                            <small class="text-muted text-truncate d-inline-block" style="max-width:300px;">${f.answer}</small>
+                        </td>
+                        <td><span class="badge badge-info">${catName}</span></td>
+                        <td>${dateStr}</td>
+                        <td>
+                            <div class="custom-control custom-switch">
+                                <input type="checkbox" class="custom-control-input" id="toggle_${f.faqId}" ${checked} onchange="toggleFaq(${f.faqId})">
+                                <label class="custom-control-label" for="toggle_${f.faqId}"></label>
+                            </div>
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary" onclick="editFaq(${f.faqId})"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteFaq(${f.faqId})"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            $('#faqTableBody').html(html);
+        }
+
+        function getCategoryName(cat) {
+            const map = {
+                'policy': 'Chính sách',
+                'shipping': 'Vận chuyển',
+                'cat_care': 'Chăm sóc mèo',
+                'order': 'Đặt hàng',
+                'general': 'Khác'
+            };
+            return map[cat] || cat;
+        }
+
+        function openFaqModal() {
+            $('#faqId').val('');
+            $('#faqForm')[0].reset();
+            $('#modalTitle').text('Thêm mới FAQ');
+            $('#faqModal').modal('show');
+        }
+
+        function editFaq(id) {
+            let faq = allFaqs.find(f => f.faqId === id);
+            if (!faq) return;
+
+            $('#faqId').val(faq.faqId);
+            $('#faqCategory').val(faq.category);
+            $('#faqQuestion').val(faq.question);
+            $('#faqAnswer').val(faq.answer);
+            $('#faqIsActive').prop('checked', faq.isActive);
+            
+            $('#modalTitle').text('Chỉnh sửa FAQ');
+            $('#faqModal').modal('show');
+        }
+
+        function saveFaq() {
+            let id = $('#faqId').val();
+            let faq = {
+                faqId: id ? parseInt(id) : 0,
+                category: $('#faqCategory').val(),
+                question: $('#faqQuestion').val(),
+                answer: $('#faqAnswer').val(),
+                isActive: $('#faqIsActive').is(':checked')
+            };
+
+            if (!faq.question || !faq.answer) {
+                Swal.fire('Lỗi', 'Vui lòng nhập đủ câu hỏi và câu trả lời', 'error');
+                return;
+            }
+
+            let type = id ? 'PUT' : 'POST';
+            let url = id ? `/admin/faqs/api/${id}` : '/admin/faqs/api';
+
+            $.ajax({
+                url: url,
+                type: type,
+                contentType: 'application/json',
+                data: JSON.stringify(faq),
+                success: function (res) {
+                    $('#faqModal').modal('hide');
+                    Swal.fire('Thành công', 'Lưu FAQ thành công!', 'success');
+                    fetchFaqs();
+                },
+                error: function (err) {
+                    Swal.fire('Lỗi', 'Có lỗi xảy ra, vui lòng thử lại', 'error');
+                }
+            });
+        }
+
+        function toggleFaq(id) {
+            $.ajax({
+                url: `/admin/faqs/api/${id}/toggle`,
+                type: 'PATCH',
+                success: function () {
+                    // Update local state quietly
+                    let faq = allFaqs.find(f => f.faqId === id);
+                    if (faq) faq.isActive = !faq.isActive;
+                },
+                error: function () {
+                    Swal.fire('Lỗi', 'Không thể đổi trạng thái lúc này', 'error');
+                    fetchFaqs(); // Revert toggle UI
+                }
+            });
+        }
+
+        function deleteFaq(id) {
+            Swal.fire({
+                title: 'Xác nhận xóa?',
+                text: "Dữ liệu FAQ bị xóa sẽ không thể phục hồi!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Đồng ý xóa',
+                cancelButtonText: 'Hủy'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: `/admin/faqs/api/${id}`,
+                        type: 'DELETE',
+                        success: function () {
+                            Swal.fire('Đã xóa!', 'FAQ đã bị xóa khỏi hệ thống.', 'success');
+                            fetchFaqs();
+                        },
+                        error: function () {
+                            Swal.fire('Lỗi', 'Không thể xóa FAQ lúc này', 'error');
+                        }
+                    });
+                }
+            })
+        }
+    </script>
+}

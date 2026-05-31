@@ -26,8 +26,8 @@
         'Cách phòng bệnh cho mèo',
     ];
     const WELCOME = {
-        shop: 'Chào bạn! Mình là MeowBot 🐱 Bạn đang tìm gì cho bé mèo hôm nay? Mình biết hết sản phẩm trên shop luôn nè!',
-        health: 'Xin chào! Mình là MeowGarden 🩺 Bé mèo nhà bạn có vấn đề gì cần tư vấn không?',
+        shop: 'Chào bạn! Mình là MeowSales 🐱 Bạn đang tìm gì cho bé mèo hôm nay? Mình biết hết sản phẩm trên shop luôn nè!',
+        health: 'Xin chào! Mình là MeowHealth 🩺 Bé mèo nhà bạn có vấn đề gì cần tư vấn không?',
     };
     const ERROR_MESSAGES = {
         timeout: 'Mình đang nghĩ hơi lâu, bạn thử gửi lại nhé! ⏳',
@@ -41,6 +41,7 @@
     let isLoading = false;
     let currentAbortController = null;
     const history = { shop: [], health: [] };
+    const sessionId = 'meow_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
 
     // ── Build HTML ───────────────────────────────────────
     function buildWidget() {
@@ -60,8 +61,8 @@
                     <button class="meow-close" id="meow-close-btn" aria-label="Đóng">✕</button>
                 </div>
                 <div class="meow-tabs">
-                    <button class="meow-tab active-shop" data-mode="shop">🐱 MeowBot<br><small style="font-weight:500;opacity:.8">Mua hàng & tư vấn</small></button>
-                    <button class="meow-tab" data-mode="health">🩺 MeowGarden<br><small style="font-weight:500;opacity:.8">Sức khỏe mèo</small></button>
+                    <button class="meow-tab active-shop" data-mode="shop">🐱 MeowSales<br><small style="font-weight:500;opacity:.8">Mua hàng & tư vấn</small></button>
+                    <button class="meow-tab" data-mode="health">🩺 MeowHealth<br><small style="font-weight:500;opacity:.8">Sức khỏe mèo</small></button>
                 </div>
             </div>
 
@@ -69,7 +70,7 @@
             <div class="meow-bot-bar">
                 <div class="meow-bot-avatar shop" id="meow-bot-avatar">🐱</div>
                 <div>
-                    <div class="meow-bot-name" id="meow-bot-name">MeowBot</div>
+                    <div class="meow-bot-name" id="meow-bot-name">MeowSales</div>
                     <div class="meow-bot-status" id="meow-bot-status">Tư vấn mua hàng & sản phẩm mèo</div>
                 </div>
                 <div class="meow-online-dot"></div>
@@ -83,7 +84,7 @@
 
             <!-- Input -->
             <div class="meow-input-area">
-                <textarea id="meow-input" rows="1" placeholder="Nhắn tin với MeowBot..."></textarea>
+                <textarea id="meow-input" rows="1" placeholder="Nhắn tin với MeowSales..."></textarea>
                 <button id="meow-send" disabled>➤</button>
             </div>
         </div>`;
@@ -192,13 +193,13 @@
         if (mode === 'shop') {
             avatar.textContent = '🐱';
             avatar.className = 'meow-bot-avatar shop';
-            name.textContent = 'MeowBot';
+            name.textContent = 'MeowSales';
             status.textContent = 'Tư vấn mua hàng & sản phẩm mèo';
             input.placeholder = 'Hỏi về sản phẩm, giống mèo...';
         } else {
             avatar.textContent = '🩺';
             avatar.className = 'meow-bot-avatar health';
-            name.textContent = 'MeowGarden';
+            name.textContent = 'MeowHealth';
             status.textContent = 'Hỗ trợ sức khỏe thú cưng';
             input.placeholder = 'Mô tả triệu chứng của bé mèo...';
         }
@@ -300,10 +301,13 @@
         const prevStatus = statusEl.textContent;
         statusEl.textContent = 'Đang trả lời...';
 
-        // Call API with retry
+        // Call API with retry — gửi tối đa 6 turns gần nhất để Gemini có conversation context
+        // history[currentMode] đã có current message (đã push ở trên)
+        const recentHistory = history[currentMode].slice(-6);
         const result = await callApi({
             mode: currentMode,
-            messages: [{ role: 'user', content: text }]
+            sessionId: sessionId,
+            messages: recentHistory
         });
 
         hideTyping();

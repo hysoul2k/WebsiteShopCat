@@ -5,6 +5,7 @@ using Huy_Final_0843.Services;
 using Huy_Final_0843.Services.AI;
 using Huy_Final_0843.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 
@@ -70,7 +71,13 @@ namespace Huy_Final_0843.Controllers
                 var lastUserMessage = request.Messages.LastOrDefault(m => m.Role == "user")?.Content ?? "";
                 _logger.LogInformation("[ChatController] Process Send request in Mode={Mode} | User query: '{Message}'", request.Mode, lastUserMessage);
 
-                var response = await _catRagChatService.ProcessChatAsync(lastUserMessage, request.Mode, ip);
+                var accountId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var sessionId = request.SessionId ?? ip;
+                // Chuyển đổi history từ client sang ConversationTurn để truyền vào Gemini multi-turn
+                var conversationHistory = request.Messages
+                    .Select(m => new ConversationTurn(m.Role, m.Content))
+                    .ToList();
+                var response = await _catRagChatService.ProcessChatAsync(lastUserMessage, request.Mode, sessionId, accountId, conversationHistory);
                 return Ok(new { reply = response.Reply });
             }
             catch (Exception ex)
@@ -93,7 +100,7 @@ namespace Huy_Final_0843.Controllers
 
             try
             {
-                var response = await _catRagChatService.ProcessChatAsync(input.Message, "shop", input.UserId);
+                var response = await _catRagChatService.ProcessChatAsync(input.Message, "shop", null, input.UserId);
                 return Ok(response);
             }
             catch (Exception ex)
@@ -216,6 +223,7 @@ namespace Huy_Final_0843.Controllers
     public class ChatRequest
     {
         public string Mode { get; set; } = "shop"; // "shop" | "health"
+        public string? SessionId { get; set; }
         public List<ChatMessage> Messages { get; set; } = new();
     }
 

@@ -22,5 +22,7 @@ namespace Huy_Final_0843.Models
         public DbSet<Review> Reviews { get; set; }
         public DbSet<Wishlist> Wishlists { get; set; }
         public DbSet<AuditLog> AuditLogs { get; set; }
+        public DbSet<Faq> Faqs { get; set; }
+        public DbSet<ChatLog> ChatLogs { get; set; }
     }
 }

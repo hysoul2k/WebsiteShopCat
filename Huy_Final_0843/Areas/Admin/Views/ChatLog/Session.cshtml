@@ -1,0 +1,62 @@
+@{
+    ViewData["Title"] = "Chi tiết hội thoại";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    string sessionId = ViewBag.SessionId ?? "";
+}
+
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <div>
+            <a href="/admin/chatlogs" class="btn btn-sm btn-outline-secondary mb-2"><i class="fas fa-arrow-left"></i> Quay lại</a>
+            <h1 class="h3 mb-0 text-gray-800">Chi tiết hội thoại</h1>
+            <small class="text-muted">Session: @sessionId</small>
+        </div>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-body">
+            <div id="chat-timeline" style="max-height:600px;overflow-y:auto;padding:10px;">
+                <p class="text-center text-muted">Đang tải hội thoại...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const sessionId = '@Html.Raw(sessionId)';
+
+        $(document).ready(function () {
+            $.get('/admin/chatlogs/session/' + encodeURIComponent(sessionId) + '/api', function (data) {
+                if (!data.length) {
+                    $('#chat-timeline').html('<p class="text-center text-muted">Không có tin nhắn nào.</p>');
+                    return;
+                }
+
+                let html = '';
+                data.forEach(function (msg) {
+                    let isBot = msg.messageFrom === 'bot';
+                    let time = new Date(msg.createdAt).toLocaleTimeString('vi-VN');
+                    let align = isBot ? 'flex-start' : 'flex-end';
+                    let bg = isBot ? '#f1f0f0' : '#0d6efd';
+                    let color = isBot ? '#000' : '#fff';
+                    let name = isBot ? '🤖 MeowSales' : ('👤 ' + (msg.accountEmail || 'Khách'));
+
+                    html += `<div style="display:flex;justify-content:${align};margin-bottom:12px;">
+                        <div style="max-width:70%;">
+                            <small class="text-muted d-block mb-1" style="text-align:${isBot ? 'left' : 'right'}">${name} · ${time}</small>
+                            <div style="background:${bg};color:${color};padding:10px 14px;border-radius:12px;white-space:pre-wrap;line-height:1.5">${escapeHtml(msg.messageContent)}</div>
+                        </div>
+                    </div>`;
+                });
+
+                $('#chat-timeline').html(html);
+                $('#chat-timeline').scrollTop($('#chat-timeline')[0].scrollHeight);
+            });
+        });
+
+        function escapeHtml(text) {
+            return text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        }
+    </script>
+}
